@@ -8,6 +8,8 @@
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
+nodeType *conF(float value);
+nodeType *conC(char value);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
@@ -18,11 +20,13 @@ int sym[26];                    /* symbol table */
 
 %union {
     int iValue;                 /* integer value */
+    float fValue;               /* float value */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER
+%token <fValue> FLOAT
 %token <sIndex> VARIABLE
 %token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT
 %nonassoc IFX
@@ -86,6 +90,7 @@ stmt_list:
 expr:
           INTEGER               { $$ = con($1); }
         | VARIABLE              { $$ = id($1); }
+        | FLOAT                 { $$ = conF($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -115,7 +120,38 @@ nodeType *con(int value) {
 
     /* copy information */
     p->type = typeCon;
+    p->con.type = INTEGER;
     p->con.value = value;
+
+    return p;
+}
+
+nodeType *conF(float value) {
+    nodeType *p;
+
+    /* allocate node */
+    if ((p = malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCon;
+    p->con.type = FLOAT;
+    p->con.valueF = value;
+
+    return p;
+}
+
+nodeType *conC(char value) {
+    nodeType *p;
+
+    /* allocate node */
+    if ((p = malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCon;
+    p->con.type = INTEGER;
+    p->con.valueC = value;
 
     return p;
 }

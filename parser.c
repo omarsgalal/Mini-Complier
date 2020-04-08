@@ -5,7 +5,12 @@
 int ex(nodeType *p) {
     if (!p) return 0;
     switch(p->type) {
-    case typeCon:       return p->con.value;
+    case typeCon:  
+        switch(p->con.type) {
+            case INTEGER:       return p->con.value;
+            case FLOAT:         return p->con.valueF;
+        }     
+    
     case typeId:        return sym[p->id.i];
     case typeOpr:
         switch(p->opr.oper) {
