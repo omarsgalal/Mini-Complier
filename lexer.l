@@ -23,12 +23,12 @@ void yyerror(char *);
                 return INTEGER;
             }
 
-[1-9][0-9]*.[0-9]+ {
+[1-9][0-9]*\.[0-9]+ {
                 yylval.fValue = atof(yytext);
                 return FLOAT;
             }
 
-0.[0-9]+    {
+0\.[0-9]+    {
                 yylval.fValue = atof(yytext);
                 return FLOAT;
             }
