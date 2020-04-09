@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "includes.h"
 #include "y.tab.h"
+#include "utils.h"
 void yyerror(char *);
 %}
 
@@ -32,6 +33,11 @@ void yyerror(char *);
                 return FLOAT;
             }
 
+'[a-z]'     { 
+                yylval.cValue = yytext[1];
+                return CHARACTER;
+            }
+
 [-()<>=+*/%;{}.!] {
                 return *yytext;
              }
@@ -50,6 +56,12 @@ void yyerror(char *);
 "const"         return CONSTANT;
 "&&"            return AND;
 "||"            return OR;
+
+
+[a-zA-Z_][a-zA-Z_0-9]* { 
+                yylval.sIndex = hash(yytext, 26);
+                return VARIABLE;
+            }
 
 [ \t\n]+        ;       /* ignore whitespace */
 

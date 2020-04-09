@@ -1,4 +1,5 @@
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
+typedef enum { intState, floatState, charState, noneState } stateEnum;
 
 /* constants */
 typedef struct {

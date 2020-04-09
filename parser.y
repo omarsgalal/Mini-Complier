@@ -11,22 +11,28 @@ nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
 void freeNode(nodeType *p);
+void genExecute(nodeType *p);
 int ex(nodeType *p);
+float exF(nodeType *p);
+char exC(nodeType *p);
 int yylex(void);
 
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
+int status = noneState;
 %}
 
 %union {
     int iValue;                 /* integer value */
     float fValue;               /* float value */
+    char cValue;                /* char value */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER
 %token <fValue> FLOAT
+%token <cValue> CHARACTER
 %token <sIndex> VARIABLE
 %token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT
 %nonassoc IFX
@@ -47,7 +53,7 @@ program:
         ;
 
 function:
-          function stmt         { ex($2); freeNode($2); }
+          function stmt         { genExecute($2); freeNode($2); }
         | /* NULL */
         ;
 
@@ -89,8 +95,9 @@ stmt_list:
 
 expr:
           INTEGER               { $$ = con($1); }
-        | VARIABLE              { $$ = id($1); }
         | FLOAT                 { $$ = conF($1); }
+        | CHARACTER             { $$ = conC($1); }
+        | VARIABLE              { $$ = id($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -113,6 +120,8 @@ expr:
 
 nodeType *con(int value) {
     nodeType *p;
+    if (status == noneState)
+        status = intState;
 
     /* allocate node */
     if ((p = malloc(sizeof(nodeType))) == NULL)
@@ -128,6 +137,7 @@ nodeType *con(int value) {
 
 nodeType *conF(float value) {
     nodeType *p;
+    status = floatState;
 
     /* allocate node */
     if ((p = malloc(sizeof(nodeType))) == NULL)
@@ -137,12 +147,12 @@ nodeType *conF(float value) {
     p->type = typeCon;
     p->con.type = FLOAT;
     p->con.valueF = value;
-
     return p;
 }
 
 nodeType *conC(char value) {
     nodeType *p;
+    status = charState;
 
     /* allocate node */
     if ((p = malloc(sizeof(nodeType))) == NULL)
@@ -150,7 +160,7 @@ nodeType *conC(char value) {
 
     /* copy information */
     p->type = typeCon;
-    p->con.type = INTEGER;
+    p->con.type = CHARACTER;
     p->con.valueC = value;
 
     return p;
@@ -199,6 +209,19 @@ void freeNode(nodeType *p) {
             freeNode(p->opr.op[i]);
     }
     free (p);
+}
+
+void genExecute(nodeType *p) {
+    if(status == intState) 
+        ex(p); 
+    else if (status == floatState) 
+        exF(p); 
+    else if (status == charState)
+        exC(p);
+    else
+        ex(p); 
+    
+    status = noneState;
 }
 
 void yyerror(char *s) {
