@@ -34,7 +34,7 @@ int status = noneState;
 %token <fValue> FLOAT
 %token <cValue> CHARACTER
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT
+%token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT FLOATIDENTIFIER CHARIDENTIFIER
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -44,7 +44,7 @@ int status = noneState;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt
+%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt
 
 %%
 
@@ -65,28 +65,34 @@ stmt:
         | WHILE '(' expr ')' stmt                                   { $$ = opr(WHILE, 2, $3, $5); }
         | DOWHILE '(' expr ')' stmt                                 { $$ = opr(DOWHILE, 2, $3, $5); }
         | FOR '(' assign_stmt ';' expr ';' assign_stmt ')' stmt     { $$ = opr(FOR, 4, $3, $5, $7, $9); }
-        | FOR '(' declare_assign_stmt expr ';' assign_stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $6, $8); }
+        | FOR '(' declare_assign_stmt expr ';' assign_stmt ')' stmt { $$ = opr(FOR, 4, $3, $4, $6, $8); }
         | IF '(' expr ')' stmt %prec IFX                            { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                            { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                                         { $$ = $2; }
         | declare_stmt                                              { $$ = $1; }
         | declare_assign_stmt                                       { $$ = $1; }
+        | const_stmt                                                { $$ = $1; }
         ;
 
 assign_stmt:
-
-          VARIABLE '=' expr     { $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
         ;
 
 declare_stmt:
           INTIDENTIFIER VARIABLE ';'                { $$ = opr('=', 2, id($2), 0); }
-        | CONSTANT INTIDENTIFIER VARIABLE ';'       { $$ = opr('=', 2, id($3), 0); }
+        | FLOATIDENTIFIER VARIABLE ';'              { $$ = opr('=', 2, id($2), 0); }
+        | CHARIDENTIFIER VARIABLE ';'               { $$ = opr('=', 2, id($2), 0); }
         ;
 
 declare_assign_stmt:
           INTIDENTIFIER assign_stmt ';'             { $$ = $2; }
-        | CONSTANT INTIDENTIFIER assign_stmt ';'    { $$ = $3; }
+        | FLOATIDENTIFIER assign_stmt ';'           { $$ = $2; }
+        | CHARIDENTIFIER assign_stmt ';'            { $$ = $2; }
         ;
+
+const_stmt:
+          CONSTANT declare_stmt                     { $$ = $2; }
+        | CONSTANT declare_assign_stmt              { $$ = $2; }
 
 stmt_list:
           stmt                  { $$ = $1; }

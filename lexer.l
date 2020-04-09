@@ -53,6 +53,8 @@ void yyerror(char *);
 "for"           return FOR;
 "dowhile"       return DOWHILE;
 "int"           return INTIDENTIFIER;
+"float"         return FLOATIDENTIFIER;
+"char"          return CHARIDENTIFIER;
 "const"         return CONSTANT;
 "&&"            return AND;
 "||"            return OR;
