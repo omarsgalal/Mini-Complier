@@ -16,6 +16,7 @@ int ex(nodeType *p);
 float exF(nodeType *p);
 char exC(nodeType *p);
 int yylex(void);
+extern FILE *yyin;
 
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
@@ -234,7 +235,27 @@ void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
 }
 
-int main(void) {
-    yyparse();
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        yyerror("no file supported!");
+        return -1;
+    }
+        
+    FILE *myfile = fopen(argv[1], "r");
+    // make sure it is valid:
+	if (!myfile) {
+		// cout << "I can't open a.snazzle.file!" << endl;
+        yyerror("Can't open the file!");
+		return -1;
+	}
+	// set lex to read from it instead of defaulting to STDIN:
+	yyin = myfile;
+	
+	// parse through the input until there is no more:
+	do {
+		yyparse();
+	} while (!feof(yyin));
+
+    // yyparse();
     return 0;
 }
