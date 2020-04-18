@@ -131,7 +131,7 @@ nodeType *con(int value) {
         status = intState;
 
     /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
 
     /* copy information */
@@ -147,7 +147,7 @@ nodeType *conF(float value) {
     status = floatState;
 
     /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
 
     /* copy information */
@@ -162,7 +162,7 @@ nodeType *conC(char value) {
     status = charState;
 
     /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
 
     /* copy information */
@@ -177,7 +177,7 @@ nodeType *id(int i) {
     nodeType *p;
 
     /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
 
     /* copy information */
@@ -193,7 +193,7 @@ nodeType *opr(int oper, int nops, ...) {
     int i;
 
     /* allocate node, extending op array */
-    if ((p = malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
+    if ((p = (nodeType*) malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
         yyerror("out of memory");
 
     /* copy information */
