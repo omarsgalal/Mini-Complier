@@ -12,7 +12,7 @@ int ex(nodeType *p) {
             case CHARACTER:     return p->con.valueC;
         }     
     
-    case typeId:        return sym[p->id.i];
+    case typeId:        return sym[p->id.scope][p->id.i]->value;
     case typeOpr:
         switch(p->opr.oper) {
         case WHILE:     while(ex(p->opr.op[0])) ex(p->opr.op[1]); return 0;
@@ -25,7 +25,7 @@ int ex(nodeType *p) {
                         return 0;
         case PRINT:     printf("%d\n", ex(p->opr.op[0])); return 0;
         case ';':       ex(p->opr.op[0]); return ex(p->opr.op[1]);
-        case '=':       return sym[p->opr.op[0]->id.i] = ex(p->opr.op[1]);
+        case '=':       return sym[p->opr.op[0]->id.scope][p->opr.op[0]->id.i]->value = ex(p->opr.op[1]);
         case UMINUS:    return -ex(p->opr.op[0]);
         case '+':       return ex(p->opr.op[0]) + ex(p->opr.op[1]);
         case '-':       return ex(p->opr.op[0]) - ex(p->opr.op[1]);
@@ -56,7 +56,7 @@ float exF(nodeType *p) {
             case CHARACTER:     return p->con.valueC;
         }     
     
-    case typeId:        return sym[p->id.i];
+    case typeId:        return sym[p->id.scope][p->id.i]->valueF;
     case typeOpr:
         switch(p->opr.oper) {
         case WHILE:     while(exF(p->opr.op[0])) exF(p->opr.op[1]); return 0;
@@ -69,7 +69,7 @@ float exF(nodeType *p) {
                         return 0;
         case PRINT:     printf("%f\n", exF(p->opr.op[0])); return 0;
         case ';':       exF(p->opr.op[0]); return exF(p->opr.op[1]);
-        case '=':       return sym[p->opr.op[0]->id.i] = exF(p->opr.op[1]);
+        case '=':       return sym[p->opr.op[0]->id.scope][p->opr.op[0]->id.i]->valueF = exF(p->opr.op[1]);
         case UMINUS:    return -exF(p->opr.op[0]);
         case '+':       return exF(p->opr.op[0]) + exF(p->opr.op[1]);
         case '-':       return exF(p->opr.op[0]) - exF(p->opr.op[1]);
@@ -99,7 +99,7 @@ char exC(nodeType *p) {
             case CHARACTER:     return p->con.valueC;
         }     
     
-    case typeId:        return sym[p->id.i];
+    case typeId:        return sym[p->id.scope][p->id.i]->valueC;
     case typeOpr:
         switch(p->opr.oper) {
         case WHILE:     while(exC(p->opr.op[0])) exC(p->opr.op[1]); return 0;
@@ -112,7 +112,7 @@ char exC(nodeType *p) {
                         return 0;
         case PRINT:     printf("%c\n", exC(p->opr.op[0])); return 0;
         case ';':       exC(p->opr.op[0]); return exC(p->opr.op[1]);
-        case '=':       return sym[p->opr.op[0]->id.i] = exC(p->opr.op[1]);
+        case '=':       return sym[p->opr.op[0]->id.scope][p->opr.op[0]->id.i]->valueC = exC(p->opr.op[1]);
         case UMINUS:    return -exC(p->opr.op[0]);
         case '+':       return exC(p->opr.op[0]) + exC(p->opr.op[1]);
         case '-':       return exC(p->opr.op[0]) - exC(p->opr.op[1]);

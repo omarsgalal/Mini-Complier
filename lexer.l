@@ -4,12 +4,14 @@
 #include "y.tab.h"
 #include "utils.h"
 void yyerror(char *);
+int scope = 0 ;
 %}
 
 %%
 
 [a-z]       { 
-                yylval.sIndex = *yytext - 'a';
+                yylval.var.sIndex = *yytext;
+                yylval.var.scope = scope;
                 return VARIABLE;
             }
 
@@ -38,9 +40,19 @@ void yyerror(char *);
                 return CHARACTER;
             }
 
-[-()<>=+*/%;{}.!] {
+[-()<>=+*/%;.!] {
                 return *yytext;
              }
+
+[ { ]         {
+                scope++;
+                return *yytext;
+            }
+
+[ } ]         {
+                scope--;
+                return *yytext;
+            }
 
 ">="            return GE;
 "<="            return LE;
@@ -61,7 +73,8 @@ void yyerror(char *);
 
 
 [a-zA-Z_][a-zA-Z_0-9]* { 
-                yylval.sIndex = hash(yytext, 26);
+                yylval.var.sIndex = *yytext;
+                yylval.var.scope = scope;
                 return VARIABLE;
             }
 

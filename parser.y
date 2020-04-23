@@ -3,10 +3,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "includes.h"
+#include <map> 
+#include <utility>  
+#include <string.h>  
+using namespace std;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
+nodeType *id(VarInfo i);
+nodeType *Defid(VarInfo v);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
@@ -19,22 +24,25 @@ int yylex(void);
 extern FILE *yyin;
 
 void yyerror(char *s);
-int sym[26];                    /* symbol table */
+map<int, map<string ,conNodeType*>> sym;                     /* symbol table */
 int status = noneState;
+int declareState = noneState;
+int ConstOrNot = 0;
+
 %}
 
 %union {
     int iValue;                 /* integer value */
     float fValue;               /* float value */
     char cValue;                /* char value */
-    char sIndex;                /* symbol table index */
+    VarInfo var;
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER
 %token <fValue> FLOAT
 %token <cValue> CHARACTER
-%token <sIndex> VARIABLE
+%token <var> VARIABLE
 %token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT FLOATIDENTIFIER CHARIDENTIFIER
 %nonassoc IFX
 %nonassoc ELSE
@@ -45,7 +53,7 @@ int status = noneState;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt
+%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt d_assign_stmt
 
 %%
 
@@ -79,21 +87,26 @@ assign_stmt:
           VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
         ;
 
+
+d_assign_stmt:
+          VARIABLE '=' expr                         { $$ = opr('=', 2, Defid($1), $3); ConstOrNot = 0 ; }
+        ;
+
 declare_stmt:
-          INTIDENTIFIER VARIABLE ';'                { $$ = opr('=', 2, id($2), 0); }
-        | FLOATIDENTIFIER VARIABLE ';'              { $$ = opr('=', 2, id($2), 0); }
-        | CHARIDENTIFIER VARIABLE ';'               { $$ = opr('=', 2, id($2), 0); }
+          INTIDENTIFIER VARIABLE ';'                { declareState = intState;   Defid($2);  ConstOrNot = 0 ;}
+        | FLOATIDENTIFIER VARIABLE ';'              { declareState = floatState; Defid($2);  ConstOrNot = 0 ;}
+        | CHARIDENTIFIER VARIABLE ';'               { declareState = charState;  Defid($2);  ConstOrNot = 0 ;}
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER assign_stmt ';'             { $$ = $2; }
-        | FLOATIDENTIFIER assign_stmt ';'           { $$ = $2; }
-        | CHARIDENTIFIER assign_stmt ';'            { $$ = $2; }
+          INTIDENTIFIER d_assign_stmt ';'             { $$ = $2; declareState = intState;  }
+        | FLOATIDENTIFIER d_assign_stmt ';'           { $$ = $2; declareState = floatState;  }
+        | CHARIDENTIFIER d_assign_stmt ';'            { $$ = $2; declareState = charState;  }
         ;
 
 const_stmt:
-          CONSTANT declare_stmt                     { $$ = $2; }
-        | CONSTANT declare_assign_stmt              { $$ = $2; }
+          CONSTANT declare_stmt                     { $$ = $2; ConstOrNot = 1; }
+        | CONSTANT declare_assign_stmt              { $$ = $2; ConstOrNot = 1; }
 
 stmt_list:
           stmt                  { $$ = $1; }
@@ -173,8 +186,25 @@ nodeType *conC(char value) {
     return p;
 }
 
-nodeType *id(int i) {
+/* already defined variable*/
+
+nodeType *id(VarInfo v ) {
     nodeType *p;
+    int myScope = -1;
+
+
+    for(int i = v.scope ; i >-1 ; i--){
+        if(sym.find(i) != sym.end()){
+        if(sym[i].find(v.sIndex) != sym[i].end()){
+            myScope = i;
+            break;
+            }
+        }
+    }
+
+    if(myScope == -1){
+        yyerror("variable used before declared");
+    }
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -182,10 +212,58 @@ nodeType *id(int i) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
-
+    p->id.i = v.sIndex;
+    p->id.scope = myScope;
     return p;
 }
+
+
+/*define variable*/
+
+nodeType *Defid(VarInfo v) {
+    nodeType *p;
+    conNodeType* dummy;
+    if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
+        yyerror("out of memory");
+    
+    dummy->constant = ConstOrNot;
+    dummy->initialized = 0 ;
+    if(declareState == intState){
+        dummy->value = 0;
+        dummy->type = INTEGER;
+    }
+    else if (declareState == floatState){
+        dummy->valueF = 0;
+        dummy->type = FLOAT;
+    }else{
+        dummy->valueC = 'a';
+        dummy->type = CHARACTER;
+    }
+    
+
+    if(sym.find(v.scope) != sym.end()){
+        if(sym[v.scope].find(v.sIndex) != sym[v.scope].end()){
+              yyerror("dublicate initialization ");
+        }else{
+             sym[v.scope][v.sIndex]= dummy;
+        }
+
+    }else{
+        sym[v.scope][v.sIndex]= dummy;
+    }
+    /* allocate node */
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeId;
+    p->id.i = v.sIndex;
+    p->id.scope = v.scope;
+    return p;
+}
+
+
+
 
 nodeType *opr(int oper, int nops, ...) {
     va_list ap;
