@@ -4,7 +4,6 @@
 #include "y.tab.h"
 #include "utils.h"
 void yyerror(char *);
-int scope = 0 ;
 %}
 
 %%
@@ -35,19 +34,10 @@ int scope = 0 ;
                 return CHARACTER;
             }
 
-[-()<>=+*/%;.!] {
+[-()<>=+*/%;.!{}] {
                 return *yytext;
              }
 
-[{]         {
-                scope++;
-                return *yytext;
-            }
-
-[}]         {
-                scope--;
-                return *yytext;
-            }
 
 ">="            return GE;
 "<="            return LE;
@@ -68,9 +58,7 @@ int scope = 0 ;
 
 
 [a-zA-Z_][a-zA-Z_0-9]* { 
-                yylval.var = (VarInfo*) malloc(sizeof(VarInfo));
-                yylval.var->sIndex = *yytext;
-                yylval.var->scope = scope;
+                yylval.sIndex = yytext;
                 return VARIABLE;
             }
 

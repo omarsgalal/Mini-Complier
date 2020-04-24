@@ -18,17 +18,10 @@ typedef struct {
     
 } conNodeType;
 
-typedef struct {
-    string sIndex;                /* symbol table index */
-    int scope;
-} VarInfo;
-
-
 
 /* identifiers */
 typedef struct {
     string i;                      /* subscript to sym array */
-    int scope;
 } idNodeType;
 
 /* operators */
@@ -48,4 +41,4 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-extern map<int, map<string ,conNodeType*>> sym;
+extern map<string ,conNodeType*> sym;

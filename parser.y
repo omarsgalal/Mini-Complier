@@ -9,8 +9,8 @@
 using namespace std;
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(VarInfo* v);
-nodeType *Defid(VarInfo* v);
+nodeType *Defid(char* f);
+nodeType *id(char* f);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
@@ -23,7 +23,7 @@ int yylex(void);
 extern FILE *yyin;
 
 void yyerror(char *s);
-map<int, map<string ,conNodeType*>> sym;                     /* symbol table */
+map<string ,conNodeType*> sym;                     /* symbol table */
 int status = noneState;
 int declareState = noneState;
 int ConstOrNot = 0;
@@ -34,14 +34,14 @@ int ConstOrNot = 0;
     int iValue;                 /* integer value */
     float fValue;               /* float value */
     char cValue;                /* char value */
-    VarInfo* var;
+    char* sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER
 %token <fValue> FLOAT
 %token <cValue> CHARACTER
-%token <var> VARIABLE
+%token <sIndex> VARIABLE
 %token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT FLOATIDENTIFIER CHARIDENTIFIER
 %nonassoc IFX
 %nonassoc ELSE
@@ -183,24 +183,16 @@ nodeType *conC(char value) {
     return p;
 }
 
-/* already defined variable*/
-
-nodeType *id(VarInfo* v ) {
+nodeType *id(char* f) {
     nodeType *p;
-    int myScope = -1;
+    string v(f);
+    if(sym.find(v) != sym.end()){
+          if(sym[v]->initialized == 0){
+              yyerror("used before initialization"); 
+          }
+    }else{
 
-
-    for(int i = v->scope ; i > -1 ; i--){
-        if(sym.find(i) != sym.end()){
-        if(sym[i].find(v->sIndex) != sym[i].end()){
-            myScope = i;
-            break;
-            }
-        }
-    }
-
-    if(myScope == -1){
-       yyerror("dfsfasdfasdfsda");
+          yyerror("variable not declared ");
     }
 
     /* allocate node */
@@ -209,16 +201,20 @@ nodeType *id(VarInfo* v ) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = v->sIndex;
-    p->id.scope = myScope;
+    p->id.i = v;
     return p;
+
+
 }
+
+
 
 
 /*define variable*/
 
-nodeType *Defid(VarInfo* v) {
+nodeType *Defid(char* f) {
     nodeType *p;
+    string v(f);
     conNodeType* dummy;
     if(declareState != noneState){
         if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
@@ -227,7 +223,6 @@ nodeType *Defid(VarInfo* v) {
         dummy->constant = ConstOrNot;
         dummy->initialized = 0 ;
         if(declareState == intState){
-            fprintf(stdout, "done \n");
             dummy->value = 0;
             dummy->type = INTEGER;
         }
@@ -240,40 +235,25 @@ nodeType *Defid(VarInfo* v) {
         }
         
 
-        if(sym.find(v->scope) != sym.end()){
-            if(sym[v->scope].find(v->sIndex) != sym[v->scope].end()){
-                yyerror("dublicate initialization ");
-            }else{
-                sym[v->scope][v->sIndex]= dummy;
-            }
-
+        if(sym.find(v) != sym.end()){
+                yyerror("dublicate decleration ");
         }else{
-            sym[v->scope][v->sIndex]= dummy;
+            sym[v]= dummy;
         }
+
         /* allocate node */
         if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
             yyerror("out of memory");
         /* copy information */
         p->type = typeId;
-        p->id.i = v->sIndex;
-        p->id.scope = v->scope;
+        p->id.i = v;
         return p;
 
 
     }else{
 
-        int myScope = -1;
-        for(int i = v->scope ; i >-1 ; i--){
-            if(sym.find(i) != sym.end()){
-            if(sym[i].find(v->sIndex) != sym[i].end()){
-                myScope = i;
-                break;
-                }
-            }
-        }
-
-        if(myScope == -1){
-            fprintf(stdout, "out of shittttt\n");
+        if(sym.find(v) == sym.end()){
+             yyerror("variable not declared ");
         }
 
         /* allocate node */
@@ -282,12 +262,10 @@ nodeType *Defid(VarInfo* v) {
 
         /* copy information */
         p->type = typeId;
-        p->id.i = v->sIndex;
-        p->id.scope = myScope;
+        p->id.i = v;
         return p;
 
     }
-    return p;
     
 }
 
