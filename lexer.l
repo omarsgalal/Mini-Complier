@@ -9,12 +9,6 @@ int scope = 0 ;
 
 %%
 
-[a-z]       { 
-                yylval.var= (VarInfo*) malloc(sizeof(VarInfo));
-                yylval.var->sIndex = *yytext;
-                yylval.var->scope = scope;
-                return VARIABLE;
-            }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -45,12 +39,12 @@ int scope = 0 ;
                 return *yytext;
              }
 
-[ { ]         {
+[{]         {
                 scope++;
                 return *yytext;
             }
 
-[ } ]         {
+[}]         {
                 scope--;
                 return *yytext;
             }

@@ -7,7 +7,6 @@
 #include <utility>  
 #include <string.h>  
 using namespace std;
-
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(VarInfo* v);
@@ -53,7 +52,7 @@ int ConstOrNot = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt d_assign_stmt
+%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt 
 
 %%
 
@@ -84,24 +83,22 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { $$ = opr('=', 2, Defid($1), $3);}
         ;
 
-
-d_assign_stmt:
-          VARIABLE '=' expr                         { $$ = opr('=', 2, Defid($1), $3); ConstOrNot = 0 ; }
+d_type:
+          INTIDENTIFIER                 { declareState = intState; }
+        | FLOATIDENTIFIER              { declareState = floatState;}
+        | CHARIDENTIFIER                { declareState = charState;}
         ;
+
 
 declare_stmt:
-          INTIDENTIFIER VARIABLE ';'                { declareState = intState;   Defid($2);  ConstOrNot = 0 ;}
-        | FLOATIDENTIFIER VARIABLE ';'              { declareState = floatState; Defid($2);  ConstOrNot = 0 ;}
-        | CHARIDENTIFIER VARIABLE ';'               { declareState = charState;  Defid($2);  ConstOrNot = 0 ;}
+          d_type VARIABLE ';'                { Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER d_assign_stmt ';'             { $$ = $2; declareState = intState;  }
-        | FLOATIDENTIFIER d_assign_stmt ';'           { $$ = $2; declareState = floatState;  }
-        | CHARIDENTIFIER d_assign_stmt ';'            { $$ = $2; declareState = charState;  }
+          d_type assign_stmt ';'             { $$ = $2; declareState = noneState; }
         ;
 
 const_stmt:
@@ -193,7 +190,7 @@ nodeType *id(VarInfo* v ) {
     int myScope = -1;
 
 
-    for(int i = v->scope ; i >-1 ; i--){
+    for(int i = v->scope ; i > -1 ; i--){
         if(sym.find(i) != sym.end()){
         if(sym[i].find(v->sIndex) != sym[i].end()){
             myScope = i;
@@ -203,7 +200,7 @@ nodeType *id(VarInfo* v ) {
     }
 
     if(myScope == -1){
-        yyerror("variable used before declared");
+       yyerror("dfsfasdfasdfsda");
     }
 
     /* allocate node */
@@ -223,43 +220,75 @@ nodeType *id(VarInfo* v ) {
 nodeType *Defid(VarInfo* v) {
     nodeType *p;
     conNodeType* dummy;
-    if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
-        yyerror("out of memory");
-    
-    dummy->constant = ConstOrNot;
-    dummy->initialized = 0 ;
-    if(declareState == intState){
-        dummy->value = 0;
-        dummy->type = INTEGER;
-    }
-    else if (declareState == floatState){
-        dummy->valueF = 0;
-        dummy->type = FLOAT;
-    }else{
-        dummy->valueC = 'a';
-        dummy->type = CHARACTER;
-    }
-    
-
-    if(sym.find(v->scope) != sym.end()){
-        if(sym[v->scope].find(v->sIndex) != sym[v->scope].end()){
-              yyerror("dublicate initialization ");
+    if(declareState != noneState){
+        if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
+            yyerror("out of memory");
+        
+        dummy->constant = ConstOrNot;
+        dummy->initialized = 0 ;
+        if(declareState == intState){
+            fprintf(stdout, "done \n");
+            dummy->value = 0;
+            dummy->type = INTEGER;
+        }
+        else if (declareState == floatState){
+            dummy->valueF = 0;
+            dummy->type = FLOAT;
         }else{
-             sym[v->scope][v->sIndex]= dummy;
+            dummy->valueC = 'a';
+            dummy->type = CHARACTER;
+        }
+        
+
+        if(sym.find(v->scope) != sym.end()){
+            if(sym[v->scope].find(v->sIndex) != sym[v->scope].end()){
+                yyerror("dublicate initialization ");
+            }else{
+                sym[v->scope][v->sIndex]= dummy;
+            }
+
+        }else{
+            sym[v->scope][v->sIndex]= dummy;
+        }
+        /* allocate node */
+        if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
+            yyerror("out of memory");
+        /* copy information */
+        p->type = typeId;
+        p->id.i = v->sIndex;
+        p->id.scope = v->scope;
+        return p;
+
+
+    }else{
+
+        int myScope = -1;
+        for(int i = v->scope ; i >-1 ; i--){
+            if(sym.find(i) != sym.end()){
+            if(sym[i].find(v->sIndex) != sym[i].end()){
+                myScope = i;
+                break;
+                }
+            }
         }
 
-    }else{
-        sym[v->scope][v->sIndex]= dummy;
-    }
-    /* allocate node */
-    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
-        yyerror("out of memory");
+        if(myScope == -1){
+            fprintf(stdout, "out of shittttt\n");
+        }
 
-    /* copy information */
-    p->type = typeId;
-    p->id.i = v->sIndex;
-    p->id.scope = v->scope;
+        /* allocate node */
+        if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
+            yyerror("out of memory");
+
+        /* copy information */
+        p->type = typeId;
+        p->id.i = v->sIndex;
+        p->id.scope = myScope;
+        return p;
+
+    }
     return p;
+    
 }
 
 
@@ -269,11 +298,13 @@ nodeType *opr(int oper, int nops, ...) {
     va_list ap;
     nodeType *p;
     int i;
+    fprintf(stdout, "hello\n");
 
     /* allocate node, extending op array */
     if ((p = (nodeType*) malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
         yyerror("out of memory");
 
+    fprintf(stdout, "hello\n");
     /* copy information */
     p->type = typeOpr;
     p->opr.oper = oper;
@@ -282,6 +313,7 @@ nodeType *opr(int oper, int nops, ...) {
     for (i = 0; i < nops; i++)
         p->opr.op[i] = va_arg(ap, nodeType*);
     va_end(ap);
+    fprintf(stdout, "hello\n");
     return p;
 }
 
@@ -314,6 +346,7 @@ void yyerror(char *s) {
 }
 
 int main(int argc, char *argv[]) {
+    yydebug = 1;
     if (argc != 2) {
         yyerror("no file supported!");
         return -1;
