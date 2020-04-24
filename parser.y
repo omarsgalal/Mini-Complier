@@ -7,6 +7,7 @@
 #include <utility>  
 #include <string.h>  
 using namespace std;
+
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *Defid(char* f);
@@ -89,13 +90,13 @@ assign_stmt:
 
 d_type:
           INTIDENTIFIER                 { declareState = intState; }
-        | FLOATIDENTIFIER              { declareState = floatState;}
+        | FLOATIDENTIFIER               { declareState = floatState;}
         | CHARIDENTIFIER                { declareState = charState;}
         ;
 
 
 declare_stmt:
-          d_type VARIABLE ';'                { Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
+          d_type VARIABLE ';'                { $$ = Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
         ;
 
 declare_assign_stmt:
@@ -187,6 +188,11 @@ nodeType *conC(char value) {
 nodeType *id(char* f) {
     nodeType *p;
     string v(f);
+    fprintf(stdout, "omaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n");
+    fprintf(stdout, "xx");
+    fprintf(stdout, v.c_str());
+    fprintf(stdout, "xx\n");
+    fprintf(stdout, "%d\n\n\n\n", sym[v]->initialized);
     if(sym.find(v) != sym.end()){
           if(sym[v]->initialized == 0){
               yyerror("used before initialization"); 
@@ -216,6 +222,10 @@ nodeType *id(char* f) {
 nodeType *Defid(char* f) {
     nodeType *p;
     string v(f);
+    fprintf(stdout, "omaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n");
+    fprintf(stdout, "xx");
+    fprintf(stdout, v.c_str());
+    fprintf(stdout, "xx\n");
     conNodeType* dummy;
     if(declareState != noneState){
         if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
