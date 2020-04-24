@@ -10,8 +10,9 @@ int scope = 0 ;
 %%
 
 [a-z]       { 
-                yylval.var.sIndex = *yytext;
-                yylval.var.scope = scope;
+                yylval.var= (VarInfo*) malloc(sizeof(VarInfo));
+                yylval.var->sIndex = *yytext;
+                yylval.var->scope = scope;
                 return VARIABLE;
             }
 
@@ -73,8 +74,9 @@ int scope = 0 ;
 
 
 [a-zA-Z_][a-zA-Z_0-9]* { 
-                yylval.var.sIndex = *yytext;
-                yylval.var.scope = scope;
+                yylval.var = (VarInfo*) malloc(sizeof(VarInfo));
+                yylval.var->sIndex = *yytext;
+                yylval.var->scope = scope;
                 return VARIABLE;
             }
 

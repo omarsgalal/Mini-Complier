@@ -10,8 +10,8 @@ using namespace std;
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(VarInfo i);
-nodeType *Defid(VarInfo v);
+nodeType *id(VarInfo* v);
+nodeType *Defid(VarInfo* v);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
@@ -35,7 +35,7 @@ int ConstOrNot = 0;
     int iValue;                 /* integer value */
     float fValue;               /* float value */
     char cValue;                /* char value */
-    VarInfo var;
+    VarInfo* var;
     nodeType *nPtr;             /* node pointer */
 };
 
@@ -188,14 +188,14 @@ nodeType *conC(char value) {
 
 /* already defined variable*/
 
-nodeType *id(VarInfo v ) {
+nodeType *id(VarInfo* v ) {
     nodeType *p;
     int myScope = -1;
 
 
-    for(int i = v.scope ; i >-1 ; i--){
+    for(int i = v->scope ; i >-1 ; i--){
         if(sym.find(i) != sym.end()){
-        if(sym[i].find(v.sIndex) != sym[i].end()){
+        if(sym[i].find(v->sIndex) != sym[i].end()){
             myScope = i;
             break;
             }
@@ -212,7 +212,7 @@ nodeType *id(VarInfo v ) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = v.sIndex;
+    p->id.i = v->sIndex;
     p->id.scope = myScope;
     return p;
 }
@@ -220,7 +220,7 @@ nodeType *id(VarInfo v ) {
 
 /*define variable*/
 
-nodeType *Defid(VarInfo v) {
+nodeType *Defid(VarInfo* v) {
     nodeType *p;
     conNodeType* dummy;
     if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)
@@ -241,15 +241,15 @@ nodeType *Defid(VarInfo v) {
     }
     
 
-    if(sym.find(v.scope) != sym.end()){
-        if(sym[v.scope].find(v.sIndex) != sym[v.scope].end()){
+    if(sym.find(v->scope) != sym.end()){
+        if(sym[v->scope].find(v->sIndex) != sym[v->scope].end()){
               yyerror("dublicate initialization ");
         }else{
-             sym[v.scope][v.sIndex]= dummy;
+             sym[v->scope][v->sIndex]= dummy;
         }
 
     }else{
-        sym[v.scope][v.sIndex]= dummy;
+        sym[v->scope][v->sIndex]= dummy;
     }
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -257,8 +257,8 @@ nodeType *Defid(VarInfo v) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = v.sIndex;
-    p->id.scope = v.scope;
+    p->id.i = v->sIndex;
+    p->id.scope = v->scope;
     return p;
 }
 
