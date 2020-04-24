@@ -96,7 +96,7 @@ d_type:
 
 
 declare_stmt:
-          d_type VARIABLE ';'                { $$ = Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
+          d_type VARIABLE ';'                { Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
         ;
 
 declare_assign_stmt:
@@ -198,7 +198,7 @@ nodeType *id(char* f) {
               yyerror("used before initialization"); 
           }
     }else{
-
+        fprintf(stdout, "xx\n\n\n\n");
           yyerror("variable not declared ");
     }
 
