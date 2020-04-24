@@ -27,6 +27,7 @@ map<string ,conNodeType*> sym;                     /* symbol table */
 int status = noneState;
 int declareState = noneState;
 int ConstOrNot = 0;
+int isAssign = 0;
 
 %}
 
@@ -83,7 +84,7 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { $$ = opr('=', 2, Defid($1), $3);}
+          VARIABLE '=' expr                         { isAssign = 1; $$ = opr('=', 2, Defid($1), $3);}
         ;
 
 d_type:
@@ -221,7 +222,8 @@ nodeType *Defid(char* f) {
             yyerror("out of memory");
         
         dummy->constant = ConstOrNot;
-        dummy->initialized = 0 ;
+        dummy->initialized = isAssign;
+        isAssign = 0;
         if(declareState == intState){
             dummy->value = 0;
             dummy->type = INTEGER;
