@@ -21,6 +21,13 @@ extern FILE *yyin;
 void yyerror(char *s);
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
+
+/*
+    0 --> use variable
+    1 --> declare
+    2 --> assign
+*/
+int variableState = 0;  
 %}
 
 %union {
@@ -80,15 +87,15 @@ assign_stmt:
         ;
 
 declare_stmt:
-          INTIDENTIFIER VARIABLE ';'                { $$ = opr('=', 2, id($2), 0); }
-        | FLOATIDENTIFIER VARIABLE ';'              { $$ = opr('=', 2, id($2), 0); }
-        | CHARIDENTIFIER VARIABLE ';'               { $$ = opr('=', 2, id($2), 0); }
+          INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = opr('=', 2, id($2), 0); }
+        | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = opr('=', 2, id($2), 0); }
+        | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = opr('=', 2, id($2), 0); }
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER assign_stmt ';'             { $$ = $2; }
-        | FLOATIDENTIFIER assign_stmt ';'           { $$ = $2; }
-        | CHARIDENTIFIER assign_stmt ';'            { $$ = $2; }
+          INTIDENTIFIER assign_stmt ';'             { variableState = 2; status = intState; $$ = $2; }
+        | FLOATIDENTIFIER assign_stmt ';'           { variableState = 2; status = floatState; $$ = $2; }
+        | CHARIDENTIFIER assign_stmt ';'            { variableState = 2; status = charState; $$ = $2; }
         ;
 
 const_stmt:
@@ -127,8 +134,8 @@ expr:
 
 nodeType *con(int value) {
     nodeType *p;
-    if (status == noneState)
-        status = intState;
+    
+    status = intState;
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -190,12 +197,38 @@ nodeType *id(char* f) {
         if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
             yyerror("out of memory");                  
                 
-        dummy->initialized = 1;         
+        dummy->initialized = 1;   
+
+        if(status == intState)
+        {
+            dummy->value = 0;             
+            dummy->type = INTEGER; 
+        }  
+        else if (status == floatState)
+        {
+            dummy->valueF = 0.0;
+            dummy->type = FLOAT;
+        }
+        else if(status == charState)
+        {
+            dummy->valueC = 'a';
+            dummy->type = CHARACTER;
+        }    
                 
-        dummy->value = 0;             
-        dummy->type = INTEGER;         
+                
 
         sym[i] = dummy;
+    }
+    else
+    {
+        if (variableState == 1)
+            yyerror("variable already declared!");
+        if (sym[i]->type == INTEGER)
+            status = intState;
+        else if(sym[i]->type == FLOAT)
+            status = floatState;
+        else if(sym[i]->type == CHARACTER)
+            status = charState;
     }
 
     /* copy information */
@@ -248,6 +281,7 @@ void genExecute(nodeType *p) {
         ex(p); 
     
     status = noneState;
+    variableState = 0;
 }
 
 void yyerror(char *s) {

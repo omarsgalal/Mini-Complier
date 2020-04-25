@@ -1,3 +1,8 @@
-int x = 7;
-int y = 3;
-print x + y;
+int x;
+int x;
+float y;
+float y;
+char z;
+char z;
+z = 'y';
+print z;
