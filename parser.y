@@ -54,7 +54,7 @@ int isAssign = 0;
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt 
+%type <nPtr> stmt expr stmt_list assign_stmt declare_stmt declare_assign_stmt const_stmt d_type 
 
 %%
 
@@ -90,13 +90,13 @@ assign_stmt:
 
 d_type:
           INTIDENTIFIER                 { declareState = intState; }
-        | FLOATIDENTIFIER               { declareState = floatState;}
-        | CHARIDENTIFIER                { declareState = charState;}
+        | FLOATIDENTIFIER               { declareState = floatState; }
+        | CHARIDENTIFIER                { declareState = charState; }
         ;
 
 
 declare_stmt:
-          d_type VARIABLE ';'                { Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
+          d_type VARIABLE ';'                { $$ = Defid($2);  ConstOrNot = 0 ; declareState = noneState;}
         ;
 
 declare_assign_stmt:
@@ -201,6 +201,13 @@ nodeType *id(char* f) {
         fprintf(stdout, "xx\n\n\n\n");
           yyerror("variable not declared ");
     }
+
+    if (sym[v]->type == INTEGER)
+        status = intState;
+    else if (sym[v]->type == FLOAT)
+        status = floatState;
+    else if (sym[v]->type == CHARACTER)
+        status = charState;
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
