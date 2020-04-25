@@ -1,2 +1,3 @@
-int hello = 5;
-print hello;
+int x = 7;
+int y = 3;
+print x + y;

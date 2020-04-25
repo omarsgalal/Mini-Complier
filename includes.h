@@ -1,6 +1,7 @@
-#include <map>  
+#include <unordered_map>  
 #include <utility>
 #include <string.h>
+#include <iostream>
 
 using namespace std;
 
@@ -41,4 +42,4 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-extern map<char*, conNodeType*> sym;
+extern unordered_map<string, conNodeType*> sym;

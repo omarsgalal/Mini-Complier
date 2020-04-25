@@ -6,7 +6,7 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(char* i);
+nodeType *id(char* f);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
@@ -19,7 +19,7 @@ int yylex(void);
 extern FILE *yyin;
 
 void yyerror(char *s);
-map<char*, conNodeType*> sym;
+unordered_map<string, conNodeType*> sym;
 int status = noneState;
 %}
 
@@ -173,17 +173,19 @@ nodeType *conC(char value) {
     return p;
 }
 
-nodeType *id(char* i) {
+nodeType *id(char* f) {
     nodeType *p;
 
-    printf("xx%sxx\n", i);
+    // printf("xx%sxx\n", i);
     /* allocate node */
+
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
 
+    string i = f;
+
     if(sym.find(i) == sym.end()) 
     {
-        printf("omaaaaaaaaaaaaaaaaaaaaaaaaaaaaar");
         conNodeType* dummy;
         if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
             yyerror("out of memory");                  
@@ -198,7 +200,8 @@ nodeType *id(char* i) {
 
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    p->id.i = new char[i.size()+1];
+    strcpy(p->id.i, i.c_str());
 
     return p;
 }
@@ -207,7 +210,7 @@ nodeType *opr(int oper, int nops, ...) {
     va_list ap;
     nodeType *p;
     int i;
-
+    
     /* allocate node, extending op array */
     if ((p = (nodeType*) malloc(sizeof(nodeType) + (nops-1) * sizeof(nodeType *))) == NULL)
         yyerror("out of memory");
