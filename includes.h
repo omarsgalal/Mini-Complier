@@ -1,10 +1,16 @@
+#include <map>  
+#include <utility>
+#include <string.h>
+
+using namespace std;
+
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 typedef enum { intState, floatState, charState, noneState } stateEnum;
 
 /* constants */
 typedef struct {
     int type;
-
+    int initialized;
     union {
         int value;                  /* value of constant */
         float valueF;
@@ -15,7 +21,7 @@ typedef struct {
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
+    char* i;                      /* subscript to sym array */
 } idNodeType;
 
 /* operators */
@@ -35,4 +41,4 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-extern int sym[26];
+extern map<char*, conNodeType*> sym;

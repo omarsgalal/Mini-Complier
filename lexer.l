@@ -8,11 +8,6 @@ void yyerror(char *);
 
 %%
 
-[a-z]       { 
-                yylval.sIndex = *yytext - 'a';
-                return VARIABLE;
-            }
-
 0           {
                 yylval.iValue = atoi(yytext);
                 return INTEGER;
@@ -61,7 +56,7 @@ void yyerror(char *);
 
 
 [a-zA-Z_][a-zA-Z_0-9]* { 
-                yylval.sIndex = hash(yytext, 26);
+                yylval.sIndex = strdup(yytext);
                 return VARIABLE;
             }
 

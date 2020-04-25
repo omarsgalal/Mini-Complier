@@ -6,7 +6,7 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
+nodeType *id(char* i);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
@@ -19,7 +19,7 @@ int yylex(void);
 extern FILE *yyin;
 
 void yyerror(char *s);
-int sym[26];                    /* symbol table */
+map<char*, conNodeType*> sym;
 int status = noneState;
 %}
 
@@ -27,7 +27,7 @@ int status = noneState;
     int iValue;                 /* integer value */
     float fValue;               /* float value */
     char cValue;                /* char value */
-    char sIndex;                /* symbol table index */
+    char* sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
 
@@ -173,12 +173,28 @@ nodeType *conC(char value) {
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char* i) {
     nodeType *p;
 
+    printf("xx%sxx\n", i);
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
+
+    if(sym.find(i) == sym.end()) 
+    {
+        printf("omaaaaaaaaaaaaaaaaaaaaaaaaaaaaar");
+        conNodeType* dummy;
+        if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
+            yyerror("out of memory");                  
+                
+        dummy->initialized = 1;         
+                
+        dummy->value = 0;             
+        dummy->type = INTEGER;         
+
+        sym[i] = dummy;
+    }
 
     /* copy information */
     p->type = typeId;
