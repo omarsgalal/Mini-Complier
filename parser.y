@@ -21,6 +21,7 @@ extern FILE *yyin;
 void yyerror(char *s);
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
+int dontExecute = 0;
 
 /*
     0 --> use variable
@@ -61,7 +62,7 @@ program:
         ;
 
 function:
-          function stmt         { genExecute($2); freeNode($2); }
+          function stmt         { if(!dontExecute) genExecute($2); else dontExecute = 0; freeNode($2); }
         | /* NULL */
         ;
 
@@ -83,19 +84,19 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { variableState = 2; $$ = opr('=', 2, id($1), $3); }
         ;
 
 declare_stmt:
-          INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = opr('=', 2, id($2), 0); }
-        | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = opr('=', 2, id($2), 0); }
-        | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = opr('=', 2, id($2), 0); }
+          INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = id($2); }
+        | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = id($2); }
+        | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = id($2); }
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER assign_stmt ';'             { variableState = 2; status = intState; $$ = $2; }
-        | FLOATIDENTIFIER assign_stmt ';'           { variableState = 2; status = floatState; $$ = $2; }
-        | CHARIDENTIFIER assign_stmt ';'            { variableState = 2; status = charState; $$ = $2; }
+          INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; status = intState; $$ = opr('=', 2, id($2), $4); }
+        | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; status = floatState; $$ = opr('=', 2, id($2), $4); }
+        | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; status = charState; $$ = opr('=', 2, id($2), $4); }
         ;
 
 const_stmt:
@@ -183,8 +184,6 @@ nodeType *conC(char value) {
 nodeType *id(char* f) {
     nodeType *p;
 
-    // printf("xx%sxx\n", i);
-    /* allocate node */
 
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
@@ -193,36 +192,49 @@ nodeType *id(char* f) {
 
     if(sym.find(i) == sym.end()) 
     {
-        conNodeType* dummy;
-        if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
-            yyerror("out of memory");                  
-                
-        dummy->initialized = 1;   
+        if (variableState != 0)
+        {
+            conNodeType* dummy;
+            if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
+                yyerror("out of memory");                  
+                    
+            dummy->initialized = 0;   
 
-        if(status == intState)
-        {
-            dummy->value = 0;             
-            dummy->type = INTEGER; 
-        }  
-        else if (status == floatState)
-        {
-            dummy->valueF = 0.0;
-            dummy->type = FLOAT;
+            if(status == intState)
+            {
+                dummy->value = 0;             
+                dummy->type = INTEGER; 
+            }  
+            else if (status == floatState)
+            {
+                dummy->valueF = 0.0;
+                dummy->type = FLOAT;
+            }
+            else if(status == charState)
+            {
+                dummy->valueC = 'a';
+                dummy->type = CHARACTER;
+            }    
+                    
+                    
+
+            sym[i] = dummy;
         }
-        else if(status == charState)
+        else
         {
-            dummy->valueC = 'a';
-            dummy->type = CHARACTER;
-        }    
-                
-                
-
-        sym[i] = dummy;
+            yyerror("variable used before declaration!");
+            dontExecute = 1;
+        }
+        
     }
     else
     {
         if (variableState == 1)
             yyerror("variable already declared!");
+        
+        if (sym[i]->initialized == 0 && variableState == 0)
+            yyerror("variable used before initialization! the default value will be used");
+            
         if (sym[i]->type == INTEGER)
             status = intState;
         else if(sym[i]->type == FLOAT)

@@ -1,8 +1,4 @@
-int x;
-int x;
-float y;
-float y;
-char z;
-char z;
-z = 'y';
-print z;
+float x = 3.2;
+float x;
+print omar;
+print o;
