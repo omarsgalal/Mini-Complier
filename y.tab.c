@@ -1597,7 +1597,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 81 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
+    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); status = noneState; }
     break;
 
   case 7:
@@ -1611,7 +1611,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 83 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
+    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); status = noneState;}
     break;
 
   case 9:
@@ -1667,14 +1667,14 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 91 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); status = noneState; }
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
 #line 92 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); status = noneState; }
     break;
 
   case 18:
@@ -2258,6 +2258,8 @@ nodeType *id(char* f) {
                 yyerror("out of memory");                  
                     
             dummy->initialized = 0;   
+            if (variableState == 2)
+                dummy->initialized = 1;
 
             if(status == intState)
             {
