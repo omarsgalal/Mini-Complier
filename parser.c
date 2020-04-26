@@ -2,6 +2,8 @@
 #include "includes.h"
 #include "y.tab.h"
 
+void yyerror(char *s);
+
 int ex(nodeType *p) {
     if (!p) return 0;
     switch(p->type) {
@@ -79,6 +81,7 @@ float exF(nodeType *p) {
         case '/':       return exF(p->opr.op[0]) / exF(p->opr.op[1]);
         case '<':       return exF(p->opr.op[0]) < exF(p->opr.op[1]);
         case '>':       return exF(p->opr.op[0]) > exF(p->opr.op[1]);
+        case '%':       yyerror("operation not defined"); return 0;
         case AND:       return exF(p->opr.op[0]) && exF(p->opr.op[1]);
         case OR:        return exF(p->opr.op[0]) || exF(p->opr.op[1]);
         case '!':       return !exF(p->opr.op[0]);
@@ -161,20 +164,20 @@ char* exS(nodeType *p) {
         case PRINT:     printf("%s\n", exS(p->opr.op[0])); return 0;
         case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
         case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]); printSymbolTable(); return 0;
-        case '+':       string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;
-        /*case '-':       return exS(p->opr.op[0]) - exS(p->opr.op[1]);
-        case '*':       return exS(p->opr.op[0]) * exS(p->opr.op[1]);
-        case '/':       return exS(p->opr.op[0]) / exS(p->opr.op[1]);
-        case '%':       return exS(p->opr.op[0]) % exS(p->opr.op[1]);
-        case '<':       return exS(p->opr.op[0]) < exS(p->opr.op[1]);
-        case '>':       return exS(p->opr.op[0]) > exS(p->opr.op[1]);
-        case AND:       return exS(p->opr.op[0]) && exS(p->opr.op[1]);
-        case OR:        return exS(p->opr.op[0]) || exS(p->opr.op[1]);
-        case '!':       return !exS(p->opr.op[0]);
-        case GE:        return exS(p->opr.op[0]) >= exS(p->opr.op[1]);
-        case LE:        return exS(p->opr.op[0]) <= exS(p->opr.op[1]);
-        case NE:        return exS(p->opr.op[0]) != exS(p->opr.op[1]);
-        case EQ:        return exS(p->opr.op[0]) == exS(p->opr.op[1]);*/
+        case '+':       {string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;}
+        case '-':       yyerror("operation not defined"); return 0;
+        case '*':       yyerror("operation not defined"); return 0;
+        case '/':       yyerror("operation not defined"); return 0;
+        case '%':       yyerror("operation not defined"); return 0;
+        case '<':       yyerror("operation not defined"); return 0;
+        case '>':       yyerror("operation not defined"); return 0;
+        case AND:       yyerror("operation not defined"); return 0;
+        case OR:        yyerror("operation not defined"); return 0;
+        case '!':       yyerror("operation not defined"); return 0;
+        case GE:        yyerror("operation not defined"); return 0;
+        case LE:        yyerror("operation not defined"); return 0;
+        case NE:        yyerror("operation not defined"); return 0;
+        case EQ:        yyerror("operation not defined"); return 0;
         }
     }
     return 0;
