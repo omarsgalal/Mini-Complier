@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "includes.h"
-#include <iostream>
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
@@ -11,11 +10,13 @@ nodeType *id(char* f);
 nodeType *con(int value);
 nodeType *conF(float value);
 nodeType *conC(char value);
+nodeType *conS(char* value);
 void freeNode(nodeType *p);
 void genExecute(nodeType *p);
 int ex(nodeType *p);
 float exF(nodeType *p);
 char exC(nodeType *p);
+char* exS(nodeType *p);
 int yylex(void);
 extern FILE *yyin;
 int e = 0;
@@ -37,6 +38,7 @@ int variableState = 0;
     int iValue;                 /* integer value */
     float fValue;               /* float value */
     char cValue;                /* char value */
+    char* sValue;              /* string value */
     char* sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
@@ -44,8 +46,9 @@ int variableState = 0;
 %token <iValue> INTEGER
 %token <fValue> FLOAT
 %token <cValue> CHARACTER
+%token <sValue> STRING
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT FLOATIDENTIFIER CHARIDENTIFIER
+%token WHILE IF PRINT FOR DOWHILE INTIDENTIFIER CONSTANT FLOATIDENTIFIER CHARIDENTIFIER STRINGIDENTIFIER
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -95,12 +98,14 @@ declare_stmt:
           INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = id($2); }
         | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = id($2); }
         | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = id($2); }
+        | STRINGIDENTIFIER VARIABLE ';'             { variableState = 1; status = stringState; $$ = id($2); }
         ;
 
 declare_assign_stmt:
           INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; status = intState; $$ = opr('=', 2, id($2), $4); }
         | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; status = floatState; $$ = opr('=', 2, id($2), $4); }
         | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; status = charState; $$ = opr('=', 2, id($2), $4); }
+        | STRINGIDENTIFIER VARIABLE '=' expr ';'      { variableState = 2; status = stringState; $$ = opr('=', 2, id($2), $4); }
         ;
 
 const_stmt:
@@ -116,6 +121,7 @@ expr:
           INTEGER               { $$ = con($1); }
         | FLOAT                 { $$ = conF($1); }
         | CHARACTER             { $$ = conC($1); }
+        | STRING                { $$ = conS($1); }
         | VARIABLE              { $$ = id($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
@@ -203,6 +209,23 @@ nodeType *conC(char value) {
     return p;
 }
 
+nodeType *conS(char* value) {
+    nodeType *p;
+
+    typeMismatch(stringState);
+
+    /* allocate node */
+    if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCon;
+    p->con.type = STRING;
+    p->con.valueS = value;
+
+    return p;
+}
+
 nodeType *id(char* f) {
     nodeType *p;
 
@@ -237,6 +260,11 @@ nodeType *id(char* f) {
                 dummy->valueC = 'a';
                 dummy->type = CHARACTER;
             }    
+            else if(status == stringState)
+            {
+                dummy->valueS = "";
+                dummy->type = STRING;
+            }    
                     
                     
 
@@ -263,6 +291,8 @@ nodeType *id(char* f) {
             typeMismatch(floatState);
         else if(sym[i]->type == CHARACTER)
             typeMismatch(charState);
+        else if(sym[i]->type == STRING)
+            typeMismatch(stringState);
     }
 
     /* copy information */
@@ -335,6 +365,8 @@ void genExecute(nodeType *p) {
         exF(p); 
     else if (status == charState)
         exC(p);
+    else if (status == stringState)
+        exS(p);
     else
         ex(p); 
     

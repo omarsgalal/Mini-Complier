@@ -6,7 +6,7 @@
 using namespace std;
 
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
-typedef enum { intState, floatState, charState, noneState } stateEnum;
+typedef enum { intState, floatState, charState, stringState, noneState } stateEnum;
 
 /* constants */
 typedef struct {
@@ -16,6 +16,7 @@ typedef struct {
         int value;                  /* value of constant */
         float valueF;
         char valueC;
+        char* valueS;
     };
     
 } conNodeType;

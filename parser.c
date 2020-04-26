@@ -10,6 +10,7 @@ int ex(nodeType *p) {
             case INTEGER:       return p->con.value;
             case FLOAT:         return p->con.valueF;
             case CHARACTER:     return p->con.valueC;
+            //case STRING:        return p->con.valueS;
         }     
     
     case typeId:        return sym[p->id.i]->value;
@@ -54,6 +55,7 @@ float exF(nodeType *p) {
             case INTEGER:       return p->con.value;
             case FLOAT:         return p->con.valueF;
             case CHARACTER:     return p->con.valueC;
+            //case STRING:        return p->con.valueS;
         }     
     
     case typeId:        return sym[p->id.i]->valueF;
@@ -97,6 +99,7 @@ char exC(nodeType *p) {
             case INTEGER:       return p->con.value;
             case FLOAT:         return p->con.valueF;
             case CHARACTER:     return p->con.valueC;
+            //case STRING:        return p->con.valueS;
         }     
     
     case typeId:        return sym[p->id.i]->valueC;
@@ -128,6 +131,50 @@ char exC(nodeType *p) {
         case LE:        return exC(p->opr.op[0]) <= exC(p->opr.op[1]);
         case NE:        return exC(p->opr.op[0]) != exC(p->opr.op[1]);
         case EQ:        return exC(p->opr.op[0]) == exC(p->opr.op[1]);
+        }
+    }
+    return 0;
+}
+
+char* exS(nodeType *p) {
+    if (!p) return 0;
+    switch(p->type) {
+    case typeCon:  
+        switch(p->con.type) {
+            /*case INTEGER:       return p->con.value;
+            case FLOAT:         return p->con.valueF;
+            case CHARACTER:     return p->con.valueC;*/
+            case STRING:        return p->con.valueS;
+        }     
+    
+    case typeId:        return sym[p->id.i]->valueS;
+    case typeOpr:
+        switch(p->opr.oper) {
+        case WHILE:     while(ex(p->opr.op[0])) exS(p->opr.op[1]); return 0;
+        case DOWHILE:   do {exS(p->opr.op[1]);} while(ex(p->opr.op[0])); return 0;
+        case FOR:       for(ex(p->opr.op[0]); ex(p->opr.op[1]); ex(p->opr.op[2])) exS(p->opr.op[3]); return 0;
+        case IF:        if (ex(p->opr.op[0]))
+                            exS(p->opr.op[1]);
+                        else if (p->opr.nops > 2)
+                            exS(p->opr.op[2]);
+                        return 0;
+        case PRINT:     printf("%s\n", exS(p->opr.op[0])); return 0;
+        case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
+        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]);
+        //case '+':       return exS(p->opr.op[0]) + exS(p->opr.op[1]);
+        /*case '-':       return exS(p->opr.op[0]) - exS(p->opr.op[1]);
+        case '*':       return exS(p->opr.op[0]) * exS(p->opr.op[1]);
+        case '/':       return exS(p->opr.op[0]) / exS(p->opr.op[1]);
+        case '%':       return exS(p->opr.op[0]) % exS(p->opr.op[1]);
+        case '<':       return exS(p->opr.op[0]) < exS(p->opr.op[1]);
+        case '>':       return exS(p->opr.op[0]) > exS(p->opr.op[1]);
+        case AND:       return exS(p->opr.op[0]) && exS(p->opr.op[1]);
+        case OR:        return exS(p->opr.op[0]) || exS(p->opr.op[1]);
+        case '!':       return !exS(p->opr.op[0]);
+        case GE:        return exS(p->opr.op[0]) >= exS(p->opr.op[1]);
+        case LE:        return exS(p->opr.op[0]) <= exS(p->opr.op[1]);
+        case NE:        return exS(p->opr.op[0]) != exS(p->opr.op[1]);
+        case EQ:        return exS(p->opr.op[0]) == exS(p->opr.op[1]);*/
         }
     }
     return 0;

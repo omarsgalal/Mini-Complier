@@ -36,6 +36,11 @@ void yyerror(char *);
                 return CHARACTER;
             }
 
+\"([^\\\"]|\\.)*\"  {
+                        yylval.sValue = strdup(yytext);
+                        return STRING;
+                    }
+
 [-()<>=+*/%;{}.!] {
                 return *yytext;
              }
@@ -53,6 +58,7 @@ void yyerror(char *);
 "int"           { yylval.nPtr = NULL; return INTIDENTIFIER; }
 "float"         { yylval.nPtr = NULL; return FLOATIDENTIFIER; }
 "char"          { yylval.nPtr = NULL; return CHARIDENTIFIER; }
+"string"        { yylval.nPtr = NULL; return STRINGIDENTIFIER; }
 "const"         { yylval.nPtr = NULL; return CONSTANT; }
 "&&"            return AND;
 "||"            return OR;
