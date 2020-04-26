@@ -2294,8 +2294,11 @@ nodeType *id(char* f) {
     }
     else
     {
-        if (variableState == 1)
+        if (variableState == 1 || variableState == 2)
+        {    
             yyerror("variable already declared!");
+            dontExecute = 1;
+        }
         else
         {
             if (sym[i]->initialized == 0 && variableState == 0)
