@@ -31,7 +31,7 @@ void yyerror(char *);
                 return FLOAT;
             }
 
-'[a-z]'     { 
+'[a-zA-Z0-9_()<>=+*/%;{}.!]'     { 
                 yylval.cValue = yytext[1];
                 return CHARACTER;
             }
