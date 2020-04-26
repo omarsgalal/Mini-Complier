@@ -26,7 +26,7 @@ int ex(nodeType *p) {
                         return 0;
         case PRINT:     printf("%d\n", ex(p->opr.op[0])); return 0;
         case ';':       ex(p->opr.op[0]); return ex(p->opr.op[1]);
-        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->value = ex(p->opr.op[1]);
+        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->value = ex(p->opr.op[1]); printSymbolTable(); return 1;
         case UMINUS:    return -ex(p->opr.op[0]);
         case '+':       return ex(p->opr.op[0]) + ex(p->opr.op[1]);
         case '-':       return ex(p->opr.op[0]) - ex(p->opr.op[1]);
@@ -71,7 +71,7 @@ float exF(nodeType *p) {
                         return 0;
         case PRINT:     printf("%f\n", exF(p->opr.op[0])); return 0;
         case ';':       exF(p->opr.op[0]); return exF(p->opr.op[1]);
-        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->valueF = exF(p->opr.op[1]);
+        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueF = exF(p->opr.op[1]); printSymbolTable(); return 1;
         case UMINUS:    return -exF(p->opr.op[0]);
         case '+':       return exF(p->opr.op[0]) + exF(p->opr.op[1]);
         case '-':       return exF(p->opr.op[0]) - exF(p->opr.op[1]);
@@ -115,7 +115,7 @@ char exC(nodeType *p) {
                         return 0;
         case PRINT:     printf("%c\n", exC(p->opr.op[0])); return 0;
         case ';':       exC(p->opr.op[0]); return exC(p->opr.op[1]);
-        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->valueC = exC(p->opr.op[1]);
+        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueC = exC(p->opr.op[1]); printSymbolTable(); return 1;
         case UMINUS:    return -exC(p->opr.op[0]);
         case '+':       return exC(p->opr.op[0]) + exC(p->opr.op[1]);
         case '-':       return exC(p->opr.op[0]) - exC(p->opr.op[1]);
@@ -160,7 +160,7 @@ char* exS(nodeType *p) {
                         return 0;
         case PRINT:     printf("%s\n", exS(p->opr.op[0])); return 0;
         case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
-        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]);
+        case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]); printSymbolTable(); return 0;
         case '+':       string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;
         /*case '-':       return exS(p->opr.op[0]) - exS(p->opr.op[1]);
         case '*':       return exS(p->opr.op[0]) * exS(p->opr.op[1]);

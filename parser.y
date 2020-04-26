@@ -19,7 +19,9 @@ char exC(nodeType *p);
 char* exS(nodeType *p);
 int yylex(void);
 void typeMismatch(stateEnum currentState);
+void printSymbolTable();
 extern FILE *yyin;
+ofstream symbolTableFile;
 int e = 0;
 void yyerror(char *s);
 unordered_map<string, conNodeType*> sym;
@@ -272,8 +274,9 @@ nodeType *id(char* f) {
             }    
                     
                     
-
             sym[i] = dummy;
+            if(variableState != 2)
+                printSymbolTable();
         }
         else
         {
@@ -362,6 +365,24 @@ void freeNode(nodeType *p) {
     free(p);
 }
 
+void printSymbolTable()
+{
+    // symbolTableFile << "VariableName\t\t\t\t\ttype\t\t\t\tis initialized\t\t\t\tvalue\n";
+    for ( const auto &myPair : sym ) {
+        symbolTableFile << "Variable Name: " << myPair.first << "\t\t";
+        if(myPair.second->type == INTEGER)
+            symbolTableFile << "Type: " << "integer" << "\t\t" << "Is initialized: " << myPair.second->initialized << "\t\t" << "Value: " << myPair.second->value;
+        else if(myPair.second->type == FLOAT)
+            symbolTableFile << "Type: " << "float" << "\t\t" << "Is initialized: " << myPair.second->initialized << "\t\t" << "Value: " << myPair.second->valueF;
+        else if(myPair.second->type == CHARACTER)
+            symbolTableFile << "Type: " << "character" << "\t\t" << "Is initialized: " << myPair.second->initialized << "\t\t" << "Value: " << myPair.second->valueC;
+        else if(myPair.second->type == STRING)
+            symbolTableFile << "Type: " << "string" << "\t\t" << "Is initialized: " << myPair.second->initialized << "\t\t" << "Value: " << myPair.second->valueS;
+        symbolTableFile << endl << endl;
+    }
+    symbolTableFile << "\n\n\n/////////////////////////////////////////\n\n\n";
+}
+
 void genExecute(nodeType *p) {
     /*if (e == 1)
     {
@@ -398,11 +419,15 @@ int main(int argc, char *argv[]) {
 	}
 	// set lex to read from it instead of defaulting to STDIN:
 	yyin = myfile;
+
+    symbolTableFile.open("symboltable.txt");
 	
 	// parse through the input until there is no more:
 	do {
 		yyparse();
 	} while (!feof(yyin));
+
+    symbolTableFile.close();
 
     // yyparse();
     return 0;

@@ -2,6 +2,7 @@
 #include <utility>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -44,3 +45,7 @@ typedef struct nodeTypeTag {
 } nodeType;
 
 extern unordered_map<string, conNodeType*> sym;
+extern ofstream symbolTableFile;
+
+
+void printSymbolTable();
