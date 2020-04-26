@@ -4,8 +4,10 @@
 #include "y.tab.h"
 #include "utils.h"
 void yyerror(char *);
-int yylineno;
+
 %}
+
+%option yylineno
 
 %%
 
@@ -38,20 +40,20 @@ int yylineno;
                 return *yytext;
              }
 
-">="            return GE;
-"<="            return LE;
-"=="            return EQ;
-"!="            return NE;
+">="            { yylval.nPtr = NULL; return GE; }
+"<="            { yylval.nPtr = NULL; return LE; }
+"=="            { yylval.nPtr = NULL; return EQ; }
+"!="            { yylval.nPtr = NULL; return NE; }
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;
 "print"         return PRINT;
 "for"           return FOR;
 "dowhile"       return DOWHILE;
-"int"           return INTIDENTIFIER;
-"float"         return FLOATIDENTIFIER;
-"char"          return CHARIDENTIFIER;
-"const"         return CONSTANT;
+"int"           { yylval.nPtr = NULL; return INTIDENTIFIER; }
+"float"         { yylval.nPtr = NULL; return FLOATIDENTIFIER; }
+"char"          { yylval.nPtr = NULL; return CHARIDENTIFIER; }
+"const"         { yylval.nPtr = NULL; return CONSTANT; }
 "&&"            return AND;
 "||"            return OR;
 
@@ -61,12 +63,14 @@ int yylineno;
                 return VARIABLE;
             }
 
-^(.*)\n    printf("%4d\t%s", ++yylineno, yytext);
-
 [ \t\n]+        ;       /* ignore whitespace */
 
 .               yyerror("Unknown character");
 %%
 int yywrap(void) {
     return 1;
+}
+
+void yyerror(char *s) {
+    fprintf(stderr, "line %d: %s\n", yylineno, s); 
 }

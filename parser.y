@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "includes.h"
+#include <iostream>
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
@@ -17,7 +18,7 @@ float exF(nodeType *p);
 char exC(nodeType *p);
 int yylex(void);
 extern FILE *yyin;
-
+int e = 0;
 void yyerror(char *s);
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
@@ -82,8 +83,8 @@ stmt:
         | declare_stmt                                              { $$ = $1; }
         | declare_assign_stmt                                       { $$ = $1; }
         | const_stmt                                                { $$ = $1; }
-        | error ';'                                                 {}
-        | error '}'                                                 {}
+        | error ';'                                                 { $$ = NULL; dontExecute = 1; yyerrok; yyclearin; }
+        | error '}'                                                 { $$ = NULL; dontExecute = 1; yyerrok; yyclearin; }
         ;
 
 assign_stmt:
@@ -294,18 +295,40 @@ nodeType *opr(int oper, int nops, ...) {
 
 void freeNode(nodeType *p) {
     int i;
-
+    dontExecute = 0;
+    isMismatch = 0;
+    /*if (e == 1)
+    {
+        printf("_________freeNode________\n");
+        e = 0;
+        return;
+    }*/
+    /*printf("_________freeNode________\n");
+    printf("sizeof *p = %d\n", sizeof(*p));
+    printf("sizeof nodeType = %d\n", sizeof(nodeType));
+    if(sizeof(*p) != sizeof(nodeType))
+    {
+        printf("________tozbot________\n");
+        return;
+    }
+    if(p == NULL)
+        printf("p == NULL\n");
+    std::cout<<p<<"\n";*/
+    
     if (!p) return;
     if (p->type == typeOpr) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
     }
-    free (p);
-    dontExecute = 0;
-    isMismatch = 0;
+    free(p);
 }
 
 void genExecute(nodeType *p) {
+    /*if (e == 1)
+    {
+        printf("_________genExecute________\n");
+        return;
+    }*/
     if(status == intState) 
         ex(p); 
     else if (status == floatState) 
@@ -317,11 +340,6 @@ void genExecute(nodeType *p) {
     
     status = noneState;
     variableState = 0;
-}
-
-void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
-    //fprintf(stderr, "line %d: %s\n", yylineno, s); 
 }
 
 int main(int argc, char *argv[]) {
