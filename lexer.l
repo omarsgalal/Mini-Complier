@@ -80,3 +80,8 @@ int yywrap(void) {
 void yyerror(char *s) {
     fprintf(stderr, "line %d: %s\n", yylineno, s); 
 }
+
+void symbolLine()
+{
+    symbolTableFile << "Symbol table change at line: " << yylineno << endl << endl;
+}

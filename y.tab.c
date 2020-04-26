@@ -95,6 +95,7 @@ extern FILE *yyin;
 ofstream symbolTableFile;
 int e = 0;
 void yyerror(char *s);
+void symbolLine();
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
 int dontExecute = 0;
@@ -110,7 +111,7 @@ int variableState = 0;
 
 
 /* Line 189 of yacc.c  */
-#line 114 "y.tab.c"
+#line 115 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -197,7 +198,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 41 ".\\parser.y"
+#line 42 ".\\parser.y"
 
     int iValue;                 /* integer value */
     float fValue;               /* float value */
@@ -209,7 +210,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 213 "y.tab.c"
+#line 214 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -221,7 +222,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 225 "y.tab.c"
+#line 226 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -530,12 +531,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    70,    70,    74,    75,    79,    80,    81,    82,    83,
-      84,    85,    86,    87,    88,    89,    90,    91,    92,    93,
-      94,    98,   102,   103,   104,   105,   109,   110,   111,   112,
-     116,   117,   120,   121,   125,   126,   127,   128,   129,   130,
-     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
-     141,   142,   143,   144,   145
+       0,    71,    71,    75,    76,    80,    81,    82,    83,    84,
+      85,    86,    87,    88,    89,    90,    91,    92,    93,    94,
+      95,    99,   103,   104,   105,   106,   110,   111,   112,   113,
+     117,   118,   121,   122,   126,   127,   128,   129,   130,   131,
+     132,   133,   134,   135,   136,   137,   138,   139,   140,   141,
+     142,   143,   144,   145,   146
 };
 #endif
 
@@ -1574,371 +1575,371 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 70 ".\\parser.y"
+#line 71 ".\\parser.y"
     { exit(0); }
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 74 ".\\parser.y"
+#line 75 ".\\parser.y"
     { if(!dontExecute) genExecute((yyvsp[(2) - (2)].nPtr)); freeNode((yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 79 ".\\parser.y"
+#line 80 ".\\parser.y"
     { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 80 ".\\parser.y"
+#line 81 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 81 ".\\parser.y"
+#line 82 ".\\parser.y"
     { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[(2) - (3)].nPtr)); }
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 82 ".\\parser.y"
+#line 83 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 83 ".\\parser.y"
+#line 84 ".\\parser.y"
     { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 84 ".\\parser.y"
+#line 85 ".\\parser.y"
     { (yyval.nPtr) = opr(DOWHILE, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 85 ".\\parser.y"
+#line 86 ".\\parser.y"
     { (yyval.nPtr) = opr(FOR, 4, (yyvsp[(3) - (9)].nPtr), (yyvsp[(5) - (9)].nPtr), (yyvsp[(7) - (9)].nPtr), (yyvsp[(9) - (9)].nPtr)); }
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 86 ".\\parser.y"
+#line 87 ".\\parser.y"
     { (yyval.nPtr) = opr(FOR, 4, (yyvsp[(3) - (8)].nPtr), (yyvsp[(4) - (8)].nPtr), (yyvsp[(6) - (8)].nPtr), (yyvsp[(8) - (8)].nPtr)); }
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 87 ".\\parser.y"
+#line 88 ".\\parser.y"
     { (yyval.nPtr) = opr(IF, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 88 ".\\parser.y"
+#line 89 ".\\parser.y"
     { (yyval.nPtr) = opr(IF, 3, (yyvsp[(3) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr), (yyvsp[(7) - (7)].nPtr)); }
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 89 ".\\parser.y"
+#line 90 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 90 ".\\parser.y"
+#line 91 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 91 ".\\parser.y"
+#line 92 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 92 ".\\parser.y"
+#line 93 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 93 ".\\parser.y"
+#line 94 ".\\parser.y"
     { (yyval.nPtr) = NULL; dontExecute = 1; yyerrok; yyclearin; }
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 94 ".\\parser.y"
+#line 95 ".\\parser.y"
     { (yyval.nPtr) = NULL; dontExecute = 1; yyerrok; yyclearin; }
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 98 ".\\parser.y"
+#line 99 ".\\parser.y"
     { variableState = 3; (yyval.nPtr) = opr('=', 2, id((yyvsp[(1) - (3)].sIndex)), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 102 ".\\parser.y"
+#line 103 ".\\parser.y"
     { variableState = 1; status = intState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 103 ".\\parser.y"
+#line 104 ".\\parser.y"
     { variableState = 1; status = floatState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 104 ".\\parser.y"
+#line 105 ".\\parser.y"
     { variableState = 1; status = charState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 105 ".\\parser.y"
+#line 106 ".\\parser.y"
     { variableState = 1; status = stringState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 109 ".\\parser.y"
+#line 110 ".\\parser.y"
     { variableState = 2; typeMismatch(intState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 110 ".\\parser.y"
+#line 111 ".\\parser.y"
     { variableState = 2; typeMismatch(floatState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 111 ".\\parser.y"
+#line 112 ".\\parser.y"
     { variableState = 2; typeMismatch(charState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 112 ".\\parser.y"
+#line 113 ".\\parser.y"
     { variableState = 2; typeMismatch(stringState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 116 ".\\parser.y"
+#line 117 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].nPtr); }
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 117 ".\\parser.y"
+#line 118 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].nPtr); }
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 120 ".\\parser.y"
+#line 121 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 121 ".\\parser.y"
+#line 122 ".\\parser.y"
     { (yyval.nPtr) = opr(';', 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 125 ".\\parser.y"
+#line 126 ".\\parser.y"
     { (yyval.nPtr) = con((yyvsp[(1) - (1)].iValue)); }
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 126 ".\\parser.y"
+#line 127 ".\\parser.y"
     { (yyval.nPtr) = conF((yyvsp[(1) - (1)].fValue)); }
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 127 ".\\parser.y"
+#line 128 ".\\parser.y"
     { (yyval.nPtr) = conC((yyvsp[(1) - (1)].cValue)); }
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 128 ".\\parser.y"
+#line 129 ".\\parser.y"
     { (yyval.nPtr) = conS((yyvsp[(1) - (1)].sValue)); }
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 129 ".\\parser.y"
+#line 130 ".\\parser.y"
     { (yyval.nPtr) = id((yyvsp[(1) - (1)].sIndex)); }
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 130 ".\\parser.y"
+#line 131 ".\\parser.y"
     { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 131 ".\\parser.y"
+#line 132 ".\\parser.y"
     { (yyval.nPtr) = opr('+', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 132 ".\\parser.y"
+#line 133 ".\\parser.y"
     { (yyval.nPtr) = opr('-', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 133 ".\\parser.y"
+#line 134 ".\\parser.y"
     { (yyval.nPtr) = opr('*', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 134 ".\\parser.y"
+#line 135 ".\\parser.y"
     { (yyval.nPtr) = opr('/', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 135 ".\\parser.y"
+#line 136 ".\\parser.y"
     { (yyval.nPtr) = opr('%', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 136 ".\\parser.y"
+#line 137 ".\\parser.y"
     { (yyval.nPtr) = opr('<', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 137 ".\\parser.y"
+#line 138 ".\\parser.y"
     { (yyval.nPtr) = opr('>', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 138 ".\\parser.y"
+#line 139 ".\\parser.y"
     { (yyval.nPtr) = opr(AND, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 139 ".\\parser.y"
+#line 140 ".\\parser.y"
     { (yyval.nPtr) = opr(OR, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 140 ".\\parser.y"
+#line 141 ".\\parser.y"
     { (yyval.nPtr) = opr('!', 1, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 141 ".\\parser.y"
+#line 142 ".\\parser.y"
     { (yyval.nPtr) = opr(GE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 142 ".\\parser.y"
+#line 143 ".\\parser.y"
     { (yyval.nPtr) = opr(LE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 143 ".\\parser.y"
+#line 144 ".\\parser.y"
     { (yyval.nPtr) = opr(NE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 144 ".\\parser.y"
+#line 145 ".\\parser.y"
     { (yyval.nPtr) = opr(EQ, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 145 ".\\parser.y"
+#line 146 ".\\parser.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1942 "y.tab.c"
+#line 1943 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2150,7 +2151,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 148 ".\\parser.y"
+#line 149 ".\\parser.y"
 
 
 void typeMismatch(stateEnum currentState)
@@ -2374,6 +2375,7 @@ void freeNode(nodeType *p) {
 void printSymbolTable()
 {
     // symbolTableFile << "VariableName\t\t\t\t\ttype\t\t\t\tis initialized\t\t\t\tvalue\n";
+    symbolLine();
     for ( const auto &myPair : sym ) {
         symbolTableFile << "Variable Name: " << myPair.first << "\t\t";
         if(myPair.second->type == INTEGER)

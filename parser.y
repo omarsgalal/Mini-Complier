@@ -24,6 +24,7 @@ extern FILE *yyin;
 ofstream symbolTableFile;
 int e = 0;
 void yyerror(char *s);
+void symbolLine();
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
 int dontExecute = 0;
@@ -368,6 +369,7 @@ void freeNode(nodeType *p) {
 void printSymbolTable()
 {
     // symbolTableFile << "VariableName\t\t\t\t\ttype\t\t\t\tis initialized\t\t\t\tvalue\n";
+    symbolLine();
     for ( const auto &myPair : sym ) {
         symbolTableFile << "Variable Name: " << myPair.first << "\t\t";
         if(myPair.second->type == INTEGER)
