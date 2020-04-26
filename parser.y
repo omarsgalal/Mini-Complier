@@ -18,6 +18,7 @@ float exF(nodeType *p);
 char exC(nodeType *p);
 char* exS(nodeType *p);
 int yylex(void);
+void typeMismatch(stateEnum currentState);
 extern FILE *yyin;
 int e = 0;
 void yyerror(char *s);
@@ -29,7 +30,8 @@ int isMismatch = 0;
 /*
     0 --> use variable
     1 --> declare
-    2 --> assign
+    2 --> declare assign
+    3 --> assign
 */
 int variableState = 0;  
 %}
@@ -91,7 +93,7 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { variableState = 3; $$ = opr('=', 2, id($1), $3); }
         ;
 
 declare_stmt:
@@ -102,10 +104,10 @@ declare_stmt:
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; status = intState; $$ = opr('=', 2, id($2), $4); }
-        | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; status = floatState; $$ = opr('=', 2, id($2), $4); }
-        | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; status = charState; $$ = opr('=', 2, id($2), $4); }
-        | STRINGIDENTIFIER VARIABLE '=' expr ';'      { variableState = 2; status = stringState; $$ = opr('=', 2, id($2), $4); }
+          INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; typeMismatch(intState); $$ = opr('=', 2, id($2), $4); }
+        | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; typeMismatch(floatState); $$ = opr('=', 2, id($2), $4); }
+        | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; typeMismatch(charState); $$ = opr('=', 2, id($2), $4); }
+        | STRINGIDENTIFIER VARIABLE '=' expr ';'      { variableState = 2; typeMismatch(stringState); $$ = opr('=', 2, id($2), $4); }
         ;
 
 const_stmt:
@@ -221,7 +223,10 @@ nodeType *conS(char* value) {
     /* copy information */
     p->type = typeCon;
     p->con.type = STRING;
-    p->con.valueS = value;
+    string temp(value);
+    char* v = new char[temp.size()-1];
+    strcpy(v, temp.substr(1, temp.size() - 2).c_str());
+    p->con.valueS = v;
 
     return p;
 }
@@ -237,7 +242,7 @@ nodeType *id(char* f) {
 
     if(sym.find(i) == sym.end()) 
     {
-        if (variableState != 0)
+        if (variableState != 0 && variableState != 3)
         {
             conNodeType* dummy;
             if ((dummy = (conNodeType*) malloc(sizeof(conNodeType))) == NULL)             
@@ -281,18 +286,20 @@ nodeType *id(char* f) {
     {
         if (variableState == 1)
             yyerror("variable already declared!");
-        
-        if (sym[i]->initialized == 0 && variableState == 0)
-            yyerror("variable used before initialization! the default value will be used");
-            
-        if (sym[i]->type == INTEGER)
-            typeMismatch(intState);
-        else if(sym[i]->type == FLOAT)
-            typeMismatch(floatState);
-        else if(sym[i]->type == CHARACTER)
-            typeMismatch(charState);
-        else if(sym[i]->type == STRING)
-            typeMismatch(stringState);
+        else
+        {
+            if (sym[i]->initialized == 0 && variableState == 0)
+                yyerror("variable used before initialization! the default value will be used");
+                
+            if (sym[i]->type == INTEGER)
+                typeMismatch(intState);
+            else if(sym[i]->type == FLOAT)
+                typeMismatch(floatState);
+            else if(sym[i]->type == CHARACTER)
+                typeMismatch(charState);
+            else if(sym[i]->type == STRING)
+                typeMismatch(stringState);
+        }
     }
 
     /* copy information */
@@ -327,6 +334,8 @@ void freeNode(nodeType *p) {
     int i;
     dontExecute = 0;
     isMismatch = 0;
+    variableState = 0;
+    status = noneState;
     /*if (e == 1)
     {
         printf("_________freeNode________\n");

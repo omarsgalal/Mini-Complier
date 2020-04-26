@@ -161,7 +161,7 @@ char* exS(nodeType *p) {
         case PRINT:     printf("%s\n", exS(p->opr.op[0])); return 0;
         case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
         case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; return sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]);
-        //case '+':       return exS(p->opr.op[0]) + exS(p->opr.op[1]);
+        case '+':       string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;
         /*case '-':       return exS(p->opr.op[0]) - exS(p->opr.op[1]);
         case '*':       return exS(p->opr.op[0]) * exS(p->opr.op[1]);
         case '/':       return exS(p->opr.op[0]) / exS(p->opr.op[1]);
