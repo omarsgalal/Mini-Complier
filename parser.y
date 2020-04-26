@@ -91,7 +91,7 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { variableState = 2; $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { $$ = opr('=', 2, id($1), $3); }
         ;
 
 declare_stmt:
