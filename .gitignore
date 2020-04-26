@@ -1,3 +1,5 @@
 *.yy.*
 *.tab.*
 *.exe
+test.txt
+commands.txt

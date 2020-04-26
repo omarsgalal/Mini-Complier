@@ -4,6 +4,7 @@
 #include "y.tab.h"
 #include "utils.h"
 void yyerror(char *);
+int yylineno;
 %}
 
 %%
@@ -59,6 +60,8 @@ void yyerror(char *);
                 yylval.sIndex = strdup(yytext);
                 return VARIABLE;
             }
+
+^(.*)\n    printf("%4d\t%s", ++yylineno, yytext);
 
 [ \t\n]+        ;       /* ignore whitespace */
 

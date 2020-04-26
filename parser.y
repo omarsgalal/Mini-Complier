@@ -81,6 +81,8 @@ stmt:
         | declare_stmt                                              { $$ = $1; }
         | declare_assign_stmt                                       { $$ = $1; }
         | const_stmt                                                { $$ = $1; }
+        | error ';'                                                 {}
+        | error '}'                                                 {}
         ;
 
 assign_stmt:
@@ -298,6 +300,7 @@ void genExecute(nodeType *p) {
 
 void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
+    //fprintf(stderr, "line %d: %s\n", yylineno, s); 
 }
 
 int main(int argc, char *argv[]) {
