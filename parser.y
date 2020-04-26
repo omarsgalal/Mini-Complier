@@ -78,9 +78,9 @@ function:
 
 stmt:
           ';'                                                       { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                                                  { $$ = $1; status = noneState; }
+        | expr ';'                                                  { $$ = $1; }
         | PRINT expr ';'                                            { $$ = opr(PRINT, 1, $2); }
-        | assign_stmt ';'                                           { $$ = $1; status = noneState;}
+        | assign_stmt ';'                                           { $$ = $1;}
         | WHILE '(' expr ')' stmt                                   { $$ = opr(WHILE, 2, $3, $5); }
         | DOWHILE '(' expr ')' stmt                                 { $$ = opr(DOWHILE, 2, $3, $5); }
         | FOR '(' assign_stmt ';' expr ';' assign_stmt ')' stmt     { $$ = opr(FOR, 4, $3, $5, $7, $9); }
@@ -88,8 +88,8 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX                            { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt                            { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                                         { $$ = $2; }
-        | declare_stmt                                              { $$ = $1; status = noneState; }
-        | declare_assign_stmt                                       { $$ = $1; status = noneState; }
+        | declare_stmt                                              { $$ = $1; }
+        | declare_assign_stmt                                       { $$ = $1; }
         | const_stmt                                                { $$ = $1; }
         | error ';'                                                 { $$ = NULL; dontExecute = 1; yyerrok; yyclearin; }
         | error '}'                                                 { $$ = NULL; dontExecute = 1; yyerrok; yyclearin; }

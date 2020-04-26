@@ -1597,7 +1597,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 81 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); status = noneState; }
+    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 7:
@@ -1611,7 +1611,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 83 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); status = noneState;}
+    { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr);}
     break;
 
   case 9:
@@ -1667,14 +1667,14 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 91 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); status = noneState; }
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
 #line 92 ".\\parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); status = noneState; }
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 18:
