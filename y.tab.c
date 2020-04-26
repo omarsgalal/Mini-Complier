@@ -1702,63 +1702,63 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 99 ".\\parser.y"
-    { variableState = 3; (yyval.nPtr) = opr('=', 2, id((yyvsp[(1) - (3)].sIndex)), (yyvsp[(3) - (3)].nPtr)); }
+    { variableState = 3; (yyval.nPtr) = opr('=', 2, id((yyvsp[(1) - (3)].sIndex)), (yyvsp[(3) - (3)].nPtr)); variableState = 0; }
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
 #line 103 ".\\parser.y"
-    { variableState = 1; status = intState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
+    { variableState = 1; status = intState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); variableState = 0; }
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
 #line 104 ".\\parser.y"
-    { variableState = 1; status = floatState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
+    { variableState = 1; status = floatState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); variableState = 0; }
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
 #line 105 ".\\parser.y"
-    { variableState = 1; status = charState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
+    { variableState = 1; status = charState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); variableState = 0; }
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
 #line 106 ".\\parser.y"
-    { variableState = 1; status = stringState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); }
+    { variableState = 1; status = stringState; (yyval.nPtr) = id((yyvsp[(2) - (3)].sIndex)); variableState = 0; }
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
 #line 110 ".\\parser.y"
-    { variableState = 2; typeMismatch(intState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
+    { variableState = 2; typeMismatch(intState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); variableState = 0; }
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
 #line 111 ".\\parser.y"
-    { variableState = 2; typeMismatch(floatState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
+    { variableState = 2; typeMismatch(floatState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); variableState = 0; }
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
 #line 112 ".\\parser.y"
-    { variableState = 2; typeMismatch(charState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
+    { variableState = 2; typeMismatch(charState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); variableState = 0; }
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
 #line 113 ".\\parser.y"
-    { variableState = 2; typeMismatch(stringState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); }
+    { variableState = 2; typeMismatch(stringState); (yyval.nPtr) = opr('=', 2, id((yyvsp[(2) - (5)].sIndex)), (yyvsp[(4) - (5)].nPtr)); variableState = 0; }
     break;
 
   case 30:

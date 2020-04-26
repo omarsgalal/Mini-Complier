@@ -96,21 +96,21 @@ stmt:
         ;
 
 assign_stmt:
-          VARIABLE '=' expr                         { variableState = 3; $$ = opr('=', 2, id($1), $3); }
+          VARIABLE '=' expr                         { variableState = 3; $$ = opr('=', 2, id($1), $3); variableState = 0; }
         ;
 
 declare_stmt:
-          INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = id($2); }
-        | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = id($2); }
-        | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = id($2); }
-        | STRINGIDENTIFIER VARIABLE ';'             { variableState = 1; status = stringState; $$ = id($2); }
+          INTIDENTIFIER VARIABLE ';'                { variableState = 1; status = intState; $$ = id($2); variableState = 0; }
+        | FLOATIDENTIFIER VARIABLE ';'              { variableState = 1; status = floatState; $$ = id($2); variableState = 0; }
+        | CHARIDENTIFIER VARIABLE ';'               { variableState = 1; status = charState; $$ = id($2); variableState = 0; }
+        | STRINGIDENTIFIER VARIABLE ';'             { variableState = 1; status = stringState; $$ = id($2); variableState = 0; }
         ;
 
 declare_assign_stmt:
-          INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; typeMismatch(intState); $$ = opr('=', 2, id($2), $4); }
-        | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; typeMismatch(floatState); $$ = opr('=', 2, id($2), $4); }
-        | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; typeMismatch(charState); $$ = opr('=', 2, id($2), $4); }
-        | STRINGIDENTIFIER VARIABLE '=' expr ';'      { variableState = 2; typeMismatch(stringState); $$ = opr('=', 2, id($2), $4); }
+          INTIDENTIFIER VARIABLE '=' expr ';'         { variableState = 2; typeMismatch(intState); $$ = opr('=', 2, id($2), $4); variableState = 0; }
+        | FLOATIDENTIFIER VARIABLE '=' expr ';'       { variableState = 2; typeMismatch(floatState); $$ = opr('=', 2, id($2), $4); variableState = 0; }
+        | CHARIDENTIFIER VARIABLE '=' expr ';'        { variableState = 2; typeMismatch(charState); $$ = opr('=', 2, id($2), $4); variableState = 0; }
+        | STRINGIDENTIFIER VARIABLE '=' expr ';'      { variableState = 2; typeMismatch(stringState); $$ = opr('=', 2, id($2), $4); variableState = 0; }
         ;
 
 const_stmt:
