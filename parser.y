@@ -22,6 +22,7 @@ void yyerror(char *s);
 unordered_map<string, conNodeType*> sym;
 int status = noneState;
 int dontExecute = 0;
+int isMismatch = 0;
 
 /*
     0 --> use variable
@@ -62,7 +63,7 @@ program:
         ;
 
 function:
-          function stmt         { if(!dontExecute) genExecute($2); else dontExecute = 0; freeNode($2); }
+          function stmt         { if(!dontExecute) genExecute($2); freeNode($2); }
         | /* NULL */
         ;
 
@@ -133,10 +134,26 @@ expr:
 
 %%
 
+void typeMismatch(stateEnum currentState)
+{
+    if (status == noneState || currentState == status)
+        status = currentState;
+    else
+    {
+        dontExecute = 1;
+        if(isMismatch == 0)
+        {
+            yyerror("Type mismatch!");
+            isMismatch = 1;
+        }
+
+    }  
+}
+
 nodeType *con(int value) {
     nodeType *p;
     
-    status = intState;
+    typeMismatch(intState);
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -152,7 +169,8 @@ nodeType *con(int value) {
 
 nodeType *conF(float value) {
     nodeType *p;
-    status = floatState;
+
+    typeMismatch(floatState);
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -167,7 +185,8 @@ nodeType *conF(float value) {
 
 nodeType *conC(char value) {
     nodeType *p;
-    status = charState;
+
+    typeMismatch(charState);
 
     /* allocate node */
     if ((p = (nodeType*) malloc(sizeof(nodeType))) == NULL)
@@ -236,11 +255,11 @@ nodeType *id(char* f) {
             yyerror("variable used before initialization! the default value will be used");
             
         if (sym[i]->type == INTEGER)
-            status = intState;
+            typeMismatch(intState);
         else if(sym[i]->type == FLOAT)
-            status = floatState;
+            typeMismatch(floatState);
         else if(sym[i]->type == CHARACTER)
-            status = charState;
+            typeMismatch(charState);
     }
 
     /* copy information */
@@ -280,6 +299,8 @@ void freeNode(nodeType *p) {
             freeNode(p->opr.op[i]);
     }
     free (p);
+    dontExecute = 0;
+    isMismatch = 0;
 }
 
 void genExecute(nodeType *p) {
