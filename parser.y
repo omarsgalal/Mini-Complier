@@ -17,6 +17,7 @@ int ex(nodeType *p);
 float exF(nodeType *p);
 char exC(nodeType *p);
 char* exS(nodeType *p);
+void* printQuads(nodeType *p);
 int yylex(void);
 void typeMismatch(stateEnum currentState);
 void printSymbolTable();
@@ -72,7 +73,7 @@ program:
         ;
 
 function:
-          function stmt         { if(!dontExecute) genExecute($2); freeNode($2); }
+          function stmt         { genExecute($2); freeNode($2); }
         | /* NULL */
         ;
 
@@ -396,17 +397,20 @@ void genExecute(nodeType *p) {
         printf("_________genExecute________\n");
         return;
     }*/
-    if(status == intState) 
-        ex(p); 
-    else if (status == floatState) 
-        exF(p); 
-    else if (status == charState)
-        exC(p);
-    else if (status == stringState)
-        exS(p);
-    else
-        ex(p); 
-    
+    if(!dontExecute)
+    {
+        if(status == intState) 
+            ex(p); 
+        else if (status == floatState) 
+            exF(p); 
+        else if (status == charState)
+            exC(p);
+        else if (status == stringState)
+            exS(p);
+        else
+            ex(p); 
+        printQuads(p);
+    }
     status = noneState;
     variableState = 0;
 }
