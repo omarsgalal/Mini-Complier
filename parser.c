@@ -165,19 +165,19 @@ char* exS(nodeType *p) {
         case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
         case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]); printSymbolTable(); return 0;
         case '+':       {string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;}
-        case '-':       yyerror("operation not defined"); return 0;
-        case '*':       yyerror("operation not defined"); return 0;
-        case '/':       yyerror("operation not defined"); return 0;
-        case '%':       yyerror("operation not defined"); return 0;
-        case '<':       yyerror("operation not defined"); return 0;
-        case '>':       yyerror("operation not defined"); return 0;
-        case AND:       yyerror("operation not defined"); return 0;
-        case OR:        yyerror("operation not defined"); return 0;
-        case '!':       yyerror("operation not defined"); return 0;
-        case GE:        yyerror("operation not defined"); return 0;
-        case LE:        yyerror("operation not defined"); return 0;
-        case NE:        yyerror("operation not defined"); return 0;
-        case EQ:        yyerror("operation not defined"); return 0;
+        case '-':       yyerror("operation not defined"); return "e";
+        case '*':       yyerror("operation not defined"); return "e";
+        case '/':       yyerror("operation not defined"); return "e";
+        case '%':       yyerror("operation not defined"); return "e";
+        case '<':       yyerror("operation not defined"); return "e";
+        case '>':       yyerror("operation not defined"); return "e";
+        case AND:       yyerror("operation not defined"); return "e";
+        case OR:        yyerror("operation not defined"); return "e";
+        case '!':       yyerror("operation not defined"); return "e";
+        case GE:        yyerror("operation not defined"); return "e";
+        case LE:        yyerror("operation not defined"); return "e";
+        case NE:        yyerror("operation not defined"); return "e";
+        case EQ:        yyerror("operation not defined"); return "e";
         }
     }
     return 0;
