@@ -1,3 +1,4 @@
+"no error here";
 int x = 1;
 
 "variable already declared!";
@@ -9,6 +10,7 @@ int y = 'c';
 "Type mismatch!";
 x = "sad";
 
+"no error here";
 x = 2 + 3;
 
 "Type mismatch!";
@@ -47,3 +49,18 @@ float flo = 5;
 "Type mismatch!";
 char c = "ds";
 
+"no error here";
+float f = 0.2;
+
+"operation not defined";
+f = f % 5.6;
+
+"no error here";
+string newStr = "im";
+newStr = newStr + "@";
+
+"operation not defined";
+newStr = newStr - "@";
+
+"no error here";
+f = f + 5.6;
