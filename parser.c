@@ -4,6 +4,101 @@
 
 void yyerror(char *s);
 
+static FILE *quadsFile = fopen("quadruples.txt", "w");
+static int lbl;
+
+void* printQuads(nodeType *p) {
+    int lbl1, lbl2;
+    if (!p) return 0;
+    switch(p->type) {
+    case typeCon:  
+        switch(p->con.type) {
+            case INTEGER:       fprintf(quadsFile, "push\t\"%d\"\n", p->con.value);   return 0;
+            case FLOAT:         fprintf(quadsFile, "push\t\"%f\"\n", p->con.valueF);  return 0;
+            case CHARACTER:     fprintf(quadsFile, "push\t\"%c\"\n", p->con.valueC);  return 0;
+            case STRING:        fprintf(quadsFile, "push\t\"%s\"\n", p->con.valueS);  return 0;
+        }     
+    
+    case typeId:        fprintf(quadsFile, "push\t%s\n", p->id.i);     return 0;
+    case typeOpr:
+        switch(p->opr.oper) {
+        case WHILE:     
+            // while(pri(p->opr.op[0])) pri(p->opr.op[1]); return 0;
+            fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
+            pri(p->opr.op[0]);
+            fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
+            pri(p->opr.op[1]);
+            fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
+            fprintf(quadsFile, "L%03d:\n", lbl2);
+            break;
+
+        case DOWHILE:   
+            // do {pri(p->opr.op[1]);} while(pri(p->opr.op[0])); return 0;
+            fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
+            pri(p->opr.op[1]);
+            pri(p->opr.op[0]);
+            fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
+            fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
+            fprintf(quadsFile, "L%03d:\n", lbl2);
+            break;
+
+        case FOR:       
+            // for(ex(p->opr.op[0]); ex(p->opr.op[1]); ex(p->opr.op[2])) ex(p->opr.op[3]); return 0;
+            pri(p->opr.op[0]);
+            fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
+            pri(p->opr.op[1]);
+            fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
+            pri(p->opr.op[3]);
+            pri(p->opr.op[2]);
+            fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
+            fprintf(quadsFile, "L%03d:\n", lbl2);
+            break;
+        case IF:        
+            // if (ex(p->opr.op[0]))
+            //     ex(p->opr.op[1]);
+            // else if (p->opr.nops > 2)
+            //     ex(p->opr.op[2]);
+            // return 0;
+            if (p->opr.nops > 2)
+            {
+                pri(p->opr.op[0]);
+                fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
+                pri(p->opr.op[1]);
+                fprintf(quadsFile, "jmp\tL%03d\n", lbl1 = lbl++);
+                fprintf(quadsFile, "L%03d:\n", lbl2);
+                pri(p->opr.op[2]);
+                fprintf(quadsFile, "L%03d:\n", lbl1);
+            } else {
+                pri(p->opr.op[0]);
+                fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
+                pri(p->opr.op[1]);
+                fprintf(quadsFile, "L%03d:\n", lbl2);
+            }
+            break;
+
+        case PRINT:     pri(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nprint,\ts1,\t  ,\t\n", p->id.i); return 0;
+        case ';':       pri(p->opr.op[0]); return pri(p->opr.op[1]);
+        case '=':       pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nmov,\ts1,\t  ,\t%s\n", p->opr.op[0]->id.i); return 0;
+        case UMINUS:    pri(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nneg,\ts1,\t  ,\ts3\npush\ts3\n"); return 0;
+        case '!':       pri(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nnot,\ts1,\t  ,\ts3\npush\ts3\n"); return 0;
+        case '+':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nadd,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '-':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nsub,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '*':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmul,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '/':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ndiv,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '%':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmod,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '<':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLT,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case '>':       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGT,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case AND:       pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompAND,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case OR:        pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompOR,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case GE:        pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case LE:        pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case NE:        pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompNE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case EQ:        pri(p->opr.op[0]); pri(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompEQ,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        }
+    }
+    return 0;
+}
+
 int ex(nodeType *p) {
     if (!p) return 0;
     switch(p->type) {
