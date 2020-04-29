@@ -7,7 +7,7 @@ void yyerror(char *s);
 static FILE *quadsFile = fopen("quadruples.txt", "w");
 static int lbl;
 
-void* printQuads(nodeType *p, stateEnum currentState) {
+void* printQuads(nodeType *p, stateEnum currentState){
     int lbl1, lbl2;
     if (!p) return 0;
     switch(p->type) {
@@ -23,20 +23,20 @@ void* printQuads(nodeType *p, stateEnum currentState) {
     case typeOpr:
         switch(p->opr.oper) {
         case WHILE:     
-            // while(printQuads(p->opr.op[0])) printQuads(p->opr.op[1]); return 0;
+            // while(printQuads(p->opr.op[0], currentState)) printQuads(p->opr.op[1], currentState); return 0;
             fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
-            printQuads(p->opr.op[0]);
+            printQuads(p->opr.op[0], currentState);
             fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
-            printQuads(p->opr.op[1]);
+            printQuads(p->opr.op[1], currentState);
             fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
             fprintf(quadsFile, "L%03d:\n", lbl2);
             break;
 
         case DOWHILE:   
-            // do {printQuads(p->opr.op[1]);} while(printQuads(p->opr.op[0])); return 0;
+            // do {printQuads(p->opr.op[1], currentState);} while(printQuads(p->opr.op[0], currentState)); return 0;
             fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
-            printQuads(p->opr.op[1]);
-            printQuads(p->opr.op[0]);
+            printQuads(p->opr.op[1], currentState);
+            printQuads(p->opr.op[0], currentState);
             fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
             fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
             fprintf(quadsFile, "L%03d:\n", lbl2);
@@ -44,12 +44,12 @@ void* printQuads(nodeType *p, stateEnum currentState) {
 
         case FOR:       
             // for(ex(p->opr.op[0]); ex(p->opr.op[1]); ex(p->opr.op[2])) ex(p->opr.op[3]); return 0;
-            printQuads(p->opr.op[0]);
+            printQuads(p->opr.op[0], currentState);
             fprintf(quadsFile, "L%03d:\n", lbl1 = lbl++);
-            printQuads(p->opr.op[1]);
+            printQuads(p->opr.op[1], currentState);
             fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
-            printQuads(p->opr.op[3]);
-            printQuads(p->opr.op[2]);
+            printQuads(p->opr.op[3], currentState);
+            printQuads(p->opr.op[2], currentState);
             fprintf(quadsFile, "jmp\tL%03d\n", lbl1);
             fprintf(quadsFile, "L%03d:\n", lbl2);
             break;
@@ -61,39 +61,133 @@ void* printQuads(nodeType *p, stateEnum currentState) {
             // return 0;
             if (p->opr.nops > 2)
             {
-                printQuads(p->opr.op[0]);
+                printQuads(p->opr.op[0], currentState);
                 fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
-                printQuads(p->opr.op[1]);
+                printQuads(p->opr.op[1], currentState);
                 fprintf(quadsFile, "jmp\tL%03d\n", lbl1 = lbl++);
                 fprintf(quadsFile, "L%03d:\n", lbl2);
-                printQuads(p->opr.op[2]);
+                printQuads(p->opr.op[2], currentState);
                 fprintf(quadsFile, "L%03d:\n", lbl1);
             } else {
-                printQuads(p->opr.op[0]);
+                printQuads(p->opr.op[0], currentState);
                 fprintf(quadsFile, "jtrue\tL%03d\n", lbl2 = lbl++);
-                printQuads(p->opr.op[1]);
+                printQuads(p->opr.op[1], currentState);
                 fprintf(quadsFile, "L%03d:\n", lbl2);
             }
-            break;
+            return 0;
 
-        case PRINT:     printQuads(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nprint,\ts1,\t  ,\t\n", p->id.i); return 0;
-        case ';':       printQuads(p->opr.op[0]); return printQuads(p->opr.op[1]);
-        case '=':       printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nmov,\ts1,\t  ,\t%s\n", p->opr.op[0]->id.i); return 0;
-        case UMINUS:    printQuads(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nneg,\ts1,\t  ,\ts3\npush\ts3\n"); return 0;
-        case '!':       printQuads(p->opr.op[0]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nnot,\ts1,\t  ,\ts3\npush\ts3\n"); return 0;
-        case '+':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nadd,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '-':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nsub,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '*':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmul,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '/':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ndiv,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '%':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmod,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '<':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLT,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case '>':       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGT,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case AND:       printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompAND,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case OR:        printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompOR,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case GE:        printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case LE:        printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case NE:        printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompNE,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
-        case EQ:        printQuads(p->opr.op[0]); printQuads(p->opr.op[1]); fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompEQ,\ts1,\ts2,\ts3\npush\ts3\n"); return 0;
+        case PRINT:
+            printQuads(p->opr.op[0], currentState); 
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nprint,\ts1,\t  ,\t\n", p->id.i);
+            return 0;
+        case ';':
+            printQuads(p->opr.op[0], currentState); 
+            return printQuads(p->opr.op[1], currentState);
+        case '=':
+            printQuads(p->opr.op[1], currentState); 
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nmov,\ts1,\t  ,\t%s\n", p->opr.op[0]->id.i);
+            return 0;
+        case UMINUS:    
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState); 
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nneg,\ts1,\t  ,\ts3\npush\ts3\n"); 
+            return 0;
+        case '+':
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nadd,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '%':
+            if (currentState == stringState || currentState == floatState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmod,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '!':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\nnot,\ts1,\t  ,\ts3\npush\ts3\n");
+            return 0;
+
+        case '-':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nsub,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '*':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\nmul,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '/':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ndiv,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '<':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLT,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case '>':
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGT,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case AND:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompAND,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case OR:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompOR,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case GE:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompGE,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case LE:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompLE,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case NE:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompNE,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
+        case EQ:
+            if (currentState == stringState) return 0;
+            printQuads(p->opr.op[0], currentState);
+            printQuads(p->opr.op[1], currentState);
+            fprintf(quadsFile, "pop,\t  ,\t  ,\ts1\npop,\t  ,\t  ,\ts2\ncompEQ,\ts1,\ts2,\ts3\npush\ts3\n");
+            return 0;
+        
         }
     }
     return 0;
@@ -260,6 +354,7 @@ char* exS(nodeType *p) {
         case ';':       exS(p->opr.op[0]); return exS(p->opr.op[1]);
         case '=':       sym[p->opr.op[0]->id.i]->initialized = 1; sym[p->opr.op[0]->id.i]->valueS = exS(p->opr.op[1]); printSymbolTable(); return 0;
         case '+':       {string ret = string(exS(p->opr.op[0])) + exS(p->opr.op[1]); char* cret = new char[ret.size()+1]; strcpy(cret, ret.c_str()); return cret;}
+        case UMINUS:    yyerror("operation not defined"); return "e";
         case '-':       yyerror("operation not defined"); return "e";
         case '*':       yyerror("operation not defined"); return "e";
         case '/':       yyerror("operation not defined"); return "e";
