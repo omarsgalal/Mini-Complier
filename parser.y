@@ -17,7 +17,7 @@ int ex(nodeType *p);
 float exF(nodeType *p);
 char exC(nodeType *p);
 char* exS(nodeType *p);
-void* printQuads(nodeType *p);
+void* printQuads(nodeType *p, stateEnum currentState);
 int yylex(void);
 void typeMismatch(stateEnum currentState);
 void printSymbolTable();
@@ -409,7 +409,7 @@ void genExecute(nodeType *p) {
             exS(p);
         else
             ex(p); 
-        printQuads(p);
+        printQuads(p,stateEnum(status));
     }
     status = noneState;
     variableState = 0;

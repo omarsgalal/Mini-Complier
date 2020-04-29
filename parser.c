@@ -7,7 +7,7 @@ void yyerror(char *s);
 static FILE *quadsFile = fopen("quadruples.txt", "w");
 static int lbl;
 
-void* printQuads(nodeType *p) {
+void* printQuads(nodeType *p, stateEnum currentState) {
     int lbl1, lbl2;
     if (!p) return 0;
     switch(p->type) {
