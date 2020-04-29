@@ -4,6 +4,15 @@ int x = 1;
 "variable already declared!";
 int x = 2;
 
+"variable used before declaration!";
+print z;
+
+"no error here";
+int z;
+
+"variable used before initialization!";
+print z;
+
 "Type mismatch!";
 int y = 'c';
 
