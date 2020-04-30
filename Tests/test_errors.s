@@ -3,6 +3,7 @@ int x = 1;
 
 "variable already declared!";
 int x = 2;
+int x;
 
 "variable used before declaration!";
 print z;
@@ -11,7 +12,7 @@ print z;
 int z;
 
 "variable used before initialization!";
-print z;
+z;
 
 "Type mismatch!";
 int y = 'c';
